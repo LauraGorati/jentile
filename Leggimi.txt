@@ -20,5 +20,10 @@ La proprietà emitevents del marker in A-Frame con AR.js  serve per mantenere il
 	⁃	Ho aggiunto un listener per l'evento click del pulsante, che imposta la proprietà visible dell'oggetto 3D su false, nascondendolo.
 
 
+05/10/2025
+-installato su VSCode il plugin "Live Server" in modo da testare in locale il sito. Poi va tutto ritestato sul server "vero" tramite plugin "FTP SIMPLE"
 
-FTP-SIMPLE: plugin di visual studio che consente di operare direttamente sui server ftp (in questo caso il server di Aruba dove è ospitato il sito di ArchitettoItaliano).  
+ISTRUZIONI
+-Il file config.json serve a decidere, per ogni oggetto, la posizione iniziale della camera
+-il file object3D/list.json contiene la lista dei file da visualizzare nel visualizzatore
+-il file .txt con lo stesso nome dell'oggetto contiene la descrizione che apparirà sotto al visualizzatore 3d
