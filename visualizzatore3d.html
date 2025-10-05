@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>AR GentileDaFabriano</title>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- Libreria per gesture-detector e gesture-handler -->
+    <script src="https://unpkg.com/aframe-gesture-detector"></script>
+    <script src="https://unpkg.com/aframe-motion-capture-components/dist/aframe-motion-capture-components.min.js"></script>
+   <!-- Pulsante per chiudere l'oggetto -->
+   <style>  
+        #close-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            padding: 10px 15px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body style='margin : 0px; overflow: hidden;'>
+    <button id="close-button">X</button>
+    <a-scene embedded arjs='sourceType: webcam;' gesture-detector>
+        <!-- Definisci il marker che corrisponde all'immagine del libro. -->
+        <!-- USARE BIN COME TIPO MIME INVECE DI PATT -->
+        <a-marker id="mattone" preset="custom" type='pattern' url='markers/mattone.bin'>
+        <!-- <a-marker preset="hiro"> -->
+            <!-- Aggiungi il modello 3D che verrà visualizzato quando il marker è rilevato -->
+             <a-entity
+                 id = "mattone_entity"
+                gltf-model="object3D/mattone1.glb"
+                scale="1.0 1.0 1.0"
+                rotation="0 180 0"
+                animation-mixer
+                gesture-handler> 
+            </a-entity>
+        </a-marker>
+        <a-marker id="pattern" preset="custom" type='pattern' url='markers/pattern-marker.bin'>
+            <!-- <a-marker preset="hiro"> -->
+                <!-- Aggiungi il modello 3D che verrà visualizzato quando il marker è rilevato -->
+                 <a-entity
+                    id = "pattern_entity"
+                    gltf-model="object3D/mattone1.glb"
+                    scale="1.0 1.0 1.0"
+                    rotation="0 180 0"
+                    animation-mixer
+                    gesture-handler> 
+                </a-entity>
+         </a-marker>
+        <!-- Camera -->
+        <a-entity id="mainCamera" camera></a-entity>
+    </a-scene>
+
+    <script>
+     document.addEventListener('DOMContentLoaded', function() {
+        // Recupera il nome del file dal gltf-model
+        const entity = document.getElementById('mattone_entity');
+        let modelFile = null;
+        if (entity) {
+            const modelPath = entity.getAttribute('gltf-model');
+            if (modelPath) {
+                // Prende solo il nome del file, non il percorso
+                modelFile = modelPath.split('/').pop();
+            }
+        }
+
+        if (modelFile) {
+            fetch('config.json')
+            .then(response => response.json())
+            .then(config => {
+                if (config[modelFile] && config[modelFile].cameraPosition) {
+                const camType = config[modelFile].cameraPosition.type;
+                const pos = config[modelFile].cameraPosition[camType];
+                const camera = document.getElementById('mainCamera');
+                if (camera && pos) {
+                    camera.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
+                }
+                }
+            })
+            .catch(err => {
+                console.warn('Impossibile caricare config.json:', err);
+            });
+        }
+        // Aggiungi il listener markerLost a tutti i marker
+         document.querySelectorAll('a-marker').forEach(function(marker) {
+                marker.addEventListener('markerLost', function() {
+                    this.object3D.visible = true; // Mantiene il modello visibile anche se il marker è perso
+                });
+            });
+        /*  Se lo script JavaScript è eseguito prima che il DOM sia completamente caricato, il listener dell'evento potrebbe non essere impostato correttamente. Assicurati che il tuo codice JavaScript sia eseguito dopo il caricamento completo della pagina.
+        In questo snippet, aggiungo un controllo per assicurarmi che il codice JavaScript venga eseguito solo dopo il caricamento completo del DOM. Inoltre, ho modificato la manipolazione della visibilità del modello per assicurarmi che funzioni come previsto. */
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('close-button').addEventListener('click', function() {
+                        // Nasconde la scena AR e il bottone stesso
+                    document.querySelector('a-scene').style.display = 'none';
+                    this.style.display = 'none';
+
+                    // Ferma lo stream video della webcam
+                    const video = document.querySelector('video');
+                    if (video && video.srcObject) {
+                        video.srcObject.getTracks().forEach(track => track.stop());
+                        video.srcObject = null;
+                    }
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
