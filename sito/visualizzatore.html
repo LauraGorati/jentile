@@ -19,13 +19,17 @@
 	</header>
 	<div id="viewer-container"></div>
     <div id="description-container"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-	<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>    
-	<script src="script.js"></script>
+<!-- Usa una versione stabile dove CSS2DRenderer funziona con script classici -->
+<!-- Versione stabile (r143) dove CSS2DRenderer.js aggiunge THREE.CSS2DRenderer e THREE.CSS2DObject -->
+<script src="https://unpkg.com/three@0.143.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.143.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://unpkg.com/three@0.143.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://unpkg.com/three@0.143.0/examples/js/renderers/CSS2DRenderer.js"></script>
+
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script src="script.js"></script>
 	<footer> 
-		@2024-2025 Laura Gorati
+		@2026 Laura Gorati
 	</footer>
 </body>
 </html>

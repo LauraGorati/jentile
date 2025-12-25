@@ -2,22 +2,97 @@
   "mattone1.glb": {
     "cameraPosition": {
       "type": "external", 
-      "external": { "x": 0, "y": 1.6, "z": 3 },
-      "center":   { "x": 0, "y": 0, "z": 0 }
-    }  
+      "external": { "x": 0, "y": 0.47, "z": 0.9 },
+      "center":   { "x": 0, "y": 0, "z": 0 },
+      "lookAt": { "x": 0, "y": 2, "z": -5 }
+    },
+    "hotspots": [ 
+      { 
+        "name": "Altare", 
+        "position": { "x": 0.0, "y": 0.0, "z": 0 }, 
+        "text": "Questo è l'altare principale", 
+        "link": "https://example.com/altare" 
+      } 
+    ] 
   },
     "divano.glb": {
     "cameraPosition": {
       "type": "center", 
       "external": { "x": 0, "y": 0, "z": 3 },
-      "center":   { "x": 0, "y": 0, "z": 0 }
-    }  
+      "lookAt": { "x": 0, "y": 2, "z": -5 }
+    },
+    "hotspots": [ 
+      { 
+        "name": "Altare", 
+        "position": { "x": 0.1, "y": 0.1, "z": 0 }, 
+        "text": "Questo è l'altare principale", 
+        "link": "https://example.com/altare" 
+      }, 
+      { 
+        "name": "Affresco", 
+        "position": { "x": -1.2, "y": 2.8, "z": -1.0 }, 
+        "text": "Affresco del 1600" 
+      } 
+    ]  
   },
     "esempio3D.glb": {
     "cameraPosition": {
       "type": "center", 
       "external": { "x": 0, "y": 1.6, "z": 3 },
-      "center":   { "x": 0, "y": 1.6, "z": 0 }
-    }  
-  }
+      "lookAt": { "x": 0, "y": 2, "z": -5 }
+    },
+    "hotspots": [ 
+      { 
+        "name": "Altare", 
+        "position": { "x": 2.1, "y": 1.5, "z": -3.2 }, 
+        "text": "Questo è l'altare principale", 
+        "link": "https://example.com/altare" 
+      }, 
+      { 
+        "name": "Affresco", 
+        "position": { "x": -1.2, "y": 2.8, "z": -1.0 }, 
+        "text": "Affresco del 1600" 
+      } 
+    ]   
+  },
+  "esternoChiesa.glb": {
+    "cameraPosition": {
+      "type": "external", 
+      "external": { "x": 10, "y": 8, "z": 15 },      
+      "lookAt": { "x": 0, "y": 2, "z": -5 }
+    },
+    "hotspots": [ 
+      { 
+        "name": "Altare", 
+        "position": { "x": 2.1, "y": 1.5, "z": -3.2 }, 
+        "text": "Questo è l'altare principale", 
+        "link": "https://example.com/altare" 
+      }, 
+      { 
+        "name": "Affresco", 
+        "position": { "x": -1.2, "y": 2.8, "z": -1.0 }, 
+        "text": "Affresco del 1600" 
+      } 
+    ]   
+  },
+  "internoChiesa.glb": {
+    "cameraPosition": {
+      "type": "internal", 
+      "internal": { "x": 0, "y": 0, "z": 0 },
+      "lookAt": { "x": 0, "y": 2, "z": -5 }
+    },
+    "hotspots": [ 
+      { 
+        "name": "Altare", 
+        "position": { "x": 2.1, "y": 1.5, "z": -3.2 }, 
+        "text": "Questo è l'altare principale", 
+        "link": "https://example.com/altare" 
+      }, 
+      { 
+        "name": "Affresco", 
+        "position": { "x": -1.2, "y": 2.8, "z": -1.0 }, 
+        "text": "Affresco del 1600" 
+      } 
+    ]   
+  }      
 }

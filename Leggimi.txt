@@ -21,9 +21,12 @@ La proprietà emitevents del marker in A-Frame con AR.js  serve per mantenere il
 
 
 05/10/2025
--installato su VSCode il plugin "Live Server" in modo da testare in locale il sito. Poi va tutto ritestato sul server "vero" tramite plugin "FTP SIMPLE"
+-installato su VSCode il plugin "Live Server" in modo da testare in locale il sito. 
+	-->aprire l'html con live server e poi da chrome scrivere il link di destinazione, per sempio: http://127.0.0.1:5500/sito/visualizzatore.html?file=esempio3d.glb
+-Poi va tutto ritestato sul server "vero" tramite plugin "FTP SIMPLE"
 
 ISTRUZIONI
 -Il file config.json serve a decidere, per ogni oggetto, la posizione iniziale della camera
 -il file object3D/list.json contiene la lista dei file da visualizzare nel visualizzatore
 -il file .txt con lo stesso nome dell'oggetto contiene la descrizione che apparirà sotto al visualizzatore 3d
+-per debuggare la posizione della camera, ho assegnato la mia telecamera alla variabile globale window.camera, in modo che possa essere acceduta da js console in chrome o dalla Watch window sempre in chrome
