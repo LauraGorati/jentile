@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dropdownMenu.style.display === 'none') {
             dropdownMenu.style.display = 'block';
             if (!menuLoaded) {
-                fetch('object3D/objectslist.json')
+                fetch('object3D/menulist.json')
                     .then(response => response.json())
                     .then(files => {
                         dropdownMenu.innerHTML = '';

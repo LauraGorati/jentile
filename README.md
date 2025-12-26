@@ -6,7 +6,7 @@ Lightweight web application for interactive 3D model viewing and exploration.
 
 Jentile is a simple, client-side 3D viewer built with Three.js, ideal for:
 
-- Virtual museum exhibitions: allowing users to interactively explore historical artifacts, furniture, or architectural elements (like the Malatestian Studiolo) from any device.
+- Virtual museum exhibitions: allowing users to interactively explore historical artifacts, furniture, or architectural elements (like [Lo Studiolo Malatestiano](https://www.architettoitaliano.com/bresciamalatestiana/lostudiolomalatestiano/jentile.html)) from any device.
 - Online product configurators: showcasing customizable items (e.g., furniture, accessories) with clickable parts that load variants seamlessly without page reloads.
 - Educational tools: enabling students to examine 3D reconstructions of cultural heritage objects, with hover tooltips providing context and external links.
 - Digital catalogs or portfolios: presenting 3D models with descriptions, prices, and direct links to external resources or e-commerce sites.
@@ -27,16 +27,16 @@ It delivers a smooth, immersive experience with hover highlights, informative to
 - `site/script.js` — client-side logic
 - `site/style.css` — styling
 - `site/config.json` — global text and settings
-- `site/object3D/objectslist.json` — list of available 3D models
+- `site/object3D/menulist.json` — list of available 3D models
 
 ## Requirements
 
 - A modern browser with WebGL support
-- Files must be served via HTTP(S) (local `file://` protocol has limitations)
+- Files must be served via HTTP(S)
 
 ## Quick start
 
-From the project root, run a local server (example with Python):
+After configuring your config.json, run a local server from the project root (example with Python):
 
 ```bash
 python -m http.server 8000
@@ -48,7 +48,7 @@ python -m http.server 8000
 ## Configuration and usage
 
 - Edit `site/config.json` to change titles, footer, and global settings.
-- Add or update entries in `site/object3D/objectslist.json` to include new 3D models.
+- Add or update entries in `site/object3D/menulist.json` to include new 3D models in the dropdown menu.
 - Per-model settings (camera position, hotspots, tooltips, links) are defined in `site/config.json`
 - The main page `site/jentile.html` reads configuration and loads marker-associated content dynamically.
 
