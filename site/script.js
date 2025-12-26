@@ -83,7 +83,7 @@ function loadModelPropertiesFromJson(model, ref){
 }
 
 function loadGLB(file){
-	fileName = `object3D/${file}`;
+	fileName = `3Dobjects/${file}`;
 	// check if file exixsts
 	fetch(fileName)
 		.then(response => {
@@ -245,7 +245,7 @@ function loadGLB(file){
 					config[configKey].hotspots.forEach(h => {
 						
 						const loader2 = new THREE.GLTFLoader(); // puoi riutilizzare lo stesso loader, ma per chiarezza ne creo uno nuovo
-						loader2.load(`object3D/${h.reference}`, function (gltf_temp) {
+						loader2.load(`3Dobjects/${h.reference}`, function (gltf_temp) {
 							const secondary_model = gltf_temp.scene;
 							loadModelPropertiesFromJson(secondary_model, h)
 
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dropdownMenu.style.display === 'none') {
             dropdownMenu.style.display = 'block';
             if (!menuLoaded) {
-                fetch('object3D/menulist.json')
+                fetch('3Dobjects/menulist.json')
                     .then(response => response.json())
                     .then(files => {
                         dropdownMenu.innerHTML = '';

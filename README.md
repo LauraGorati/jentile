@@ -27,7 +27,7 @@ It delivers a smooth, immersive experience with hover highlights, informative to
 - `site/script.js` — client-side logic
 - `site/style.css` — styling
 - `site/config.json` — global text and settings
-- `site/object3D/menulist.json` — list of available 3D models
+- `site/3Dobjects/menulist.json` — list of available 3D models
 
 ## Requirements
 
@@ -48,7 +48,7 @@ python -m http.server 8000
 ## Configuration and usage
 
 - Edit `site/config.json` to change titles, footer, and global settings.
-- Add or update entries in `site/object3D/menulist.json` to include new 3D models in the dropdown menu.
+- Add or update entries in `site/3Dobjects/menulist.json` to include new 3D models in the dropdown menu.
 - Per-model settings (camera position, hotspots, tooltips, links) are defined in `site/config.json`
 - The main page `site/jentile.html` reads configuration and loads marker-associated content dynamically.
 
