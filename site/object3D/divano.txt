@@ -1,0 +1,1 @@
+Esempio di descrizione per il file "divano.glb" in object3D/divano.txt

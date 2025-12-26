@@ -1,0 +1,1 @@
+Esempio di descrizione per il file "mattone1.glb" in object3D/mattone1.txt
