@@ -30,7 +30,7 @@
         "position": { "x": 0.4, "y": 0.0, "z": 0 }, 
         "title": "Titolo per la hoverbox",
         "text": "Questo è il divano grande che ti porta su di lui", 
-        "link": "http://127.0.0.1:5500/site/jentile.html?file=divano.glb" 
+        "link": "divano.glb" 
       } 
     ] 
   },
