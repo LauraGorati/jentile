@@ -117,3 +117,28 @@ header {
     position: relative;
 }
 
+#model-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    pointer-events: none;     /* il tooltip intero non blocca il mouse */
+    display: none;
+    z-index: 1000;
+    max-width: 300px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* IMPORTANTE: solo il link deve essere cliccabile */
+#model-tooltip a {
+    pointer-events: auto;     /* override: il link risponde ai click */
+    color: #ffcc00;
+    text-decoration: underline;
+}
+
+#model-tooltip a:hover {
+    color: #ffffff;
+    text-decoration: none;
+}

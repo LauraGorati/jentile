@@ -1,78 +1,69 @@
 {
   "mattone1.glb": {
+    "name" : "MATTONE",
     "cameraPosition": {
       "type": "external", 
       "external": { "x": 0, "y": 0.47, "z": 0.9 },
-      "center":   { "x": 0, "y": 0, "z": 0 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
       { 
-        "name": "Altare", 
+        "reference": "divano.glb", 
+        "name": "DIVANO PICCOLO",
+        "scale": { "x": 0.001, "y": 0.001, "z": 0.001}, 
         "position": { "x": 0.0, "y": 0.0, "z": 0 }, 
-        "text": "Questo è l'altare principale", 
-        "link": "https://example.com/altare" 
+        "title": "Titolo per la hoverbox",
+        "text": "Questo è il divano piccolo che ti porta su google", 
+        "link": "https://google.com/" 
+      },
+      { 
+        "reference": "divano.glb", 
+        "name": "DIVANO GRANDE",
+        "scale": { "x": 0.002, "y": 0.002, "z": 0.002}, 
+        "position": { "x": 0.4, "y": 0.0, "z": 0 }, 
+        "title": "Titolo per la hoverbox",
+        "text": "Questo è il divano grande che ti porta su di lui", 
+        "link": "http://127.0.0.1:5500/sito/visualizzatore.html?file=divano.glb" 
       } 
     ] 
   },
-    "divano.glb": {
+  "divano.glb": {
+    "name" : "DIVANO",
     "cameraPosition": {
-      "type": "center", 
-      "external": { "x": 0, "y": 0, "z": 3 },
+      "type": "position", 
+      "external": { "x": 0.4, "y": 0, "z": 0 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "scale": { "x": 0.002, "y": 0.002, "z": 0.002}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
-      { 
-        "name": "Altare", 
-        "position": { "x": 0.1, "y": 0.1, "z": 0 }, 
-        "text": "Questo è l'altare principale", 
-        "link": "https://example.com/altare" 
-      }, 
-      { 
-        "name": "Affresco", 
-        "position": { "x": -1.2, "y": 2.8, "z": -1.0 }, 
-        "text": "Affresco del 1600" 
-      } 
+      
     ]  
   },
     "esempio3D.glb": {
     "cameraPosition": {
-      "type": "center", 
+      "type": "position", 
       "external": { "x": 0, "y": 1.6, "z": 3 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
-      { 
-        "name": "Altare", 
-        "position": { "x": 2.1, "y": 1.5, "z": -3.2 }, 
-        "text": "Questo è l'altare principale", 
-        "link": "https://example.com/altare" 
-      }, 
-      { 
-        "name": "Affresco", 
-        "position": { "x": -1.2, "y": 2.8, "z": -1.0 }, 
-        "text": "Affresco del 1600" 
-      } 
+      
     ]   
   },
   "esternoChiesa.glb": {
     "cameraPosition": {
       "type": "external", 
-      "external": { "x": 10, "y": 8, "z": 15 },      
+      "external": { "x": 10, "y": 8, "z": 15 },   
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
-      { 
-        "name": "Altare", 
-        "position": { "x": 2.1, "y": 1.5, "z": -3.2 }, 
-        "text": "Questo è l'altare principale", 
-        "link": "https://example.com/altare" 
-      }, 
-      { 
-        "name": "Affresco", 
-        "position": { "x": -1.2, "y": 2.8, "z": -1.0 }, 
-        "text": "Affresco del 1600" 
-      } 
+      
     ]   
   },
   "internoChiesa.glb": {
@@ -81,18 +72,10 @@
       "internal": { "x": 0, "y": 0, "z": 0 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
-      { 
-        "name": "Altare", 
-        "position": { "x": 2.1, "y": 1.5, "z": -3.2 }, 
-        "text": "Questo è l'altare principale", 
-        "link": "https://example.com/altare" 
-      }, 
-      { 
-        "name": "Affresco", 
-        "position": { "x": -1.2, "y": 2.8, "z": -1.0 }, 
-        "text": "Affresco del 1600" 
-      } 
+      
     ]   
   }      
 }
