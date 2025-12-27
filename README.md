@@ -24,7 +24,8 @@ It delivers a smooth, immersive experience with hover highlights, informative to
 ## Repository structure
 
 - `site/jentile.html` — main application page
-- `site/script.js` — client-side logic
+- `site/main.js` — main client-side logic
+- `site/*.js` — other client-side logic
 - `site/style.css` — styling
 - `site/config.json` — global text and settings
 - `site/3Dobjects/menulist.json` — list of available 3D models

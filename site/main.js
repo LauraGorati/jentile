@@ -1,58 +1,5 @@
-
-function makeSelectable(h, obj) {
-	obj.tooltip = {
-        title: h.title,
-        text: h.text,
-        link: h.link
-    };
-	
-	obj.highlightModel = true;
-
-	obj.traverse((child) => {
-        if (child.isMesh && child.material) {
-            // Save original color and emissive (if used) for later use
-            child.userData.originalColor = child.material.color.clone();
-
-			if (child.material.emissive) {
-                child.userData.originalEmissive = child.material.emissive.clone();
-            }
-        }
-    });
-}
-
-function highlightModel(model, highlight = true) {
-    if (!model || !model.highlightModel) return;
-
-    model.traverse((child) => {
-        if (child.isMesh && child.material) {
-            if (highlight) {
-                // Highlight in red
-                child.material.color.set(0xff0000); // rosso puro
-                
-                // add emissive glow if needed
-                if (child.material.emissive) {
-                    child.material.emissive.set(0xff4444);
-                }
-            } else {
-                // restore original color
-                if (child.userData.originalColor) {
-                    child.material.color.copy(child.userData.originalColor);
-                }
-                if (child.userData.originalEmissive) {
-                    child.material.emissive.copy(child.userData.originalEmissive);
-                }
-            }
-        }
-    });
-}
-
-function getUrlParameter(name) {
-	name = name.replace('/[\[]/', '\\[').replace('/[\]]/', '\\]');
-	
-	var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-	var results = regex.exec(location.search);
-	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
+import { mmLog, mmError, getMouseCoordOnCanvas, getUrlParameter, reloadDescription } from './utils.js';
+import { highlightModel, makeSelectable, loadModelPropertiesFromJson } from './models.js';
 
 function openFullscreenImage(src) 
 { 
@@ -76,95 +23,141 @@ function openFullscreenImage(src)
 	document.body.appendChild(fullscreenDiv); 
 }
 
-function loadModelPropertiesFromJson(model, ref){
-	model.name = ref.name;
-	model.scale.set(ref.scale.x, ref.scale.y, ref.scale.z); 
-	model.position.set(ref.position.x, ref.position.y, ref.position.z); 
+function findHitObject(mouse){
+	raycaster.setFromCamera(mouse, camera);
+
+	const intersects = raycaster.intersectObjects(scene.children, true);
+
+	if (intersects.length > 0) {
+		let hitObject = intersects[0].object;
+
+		// find the root model
+		while (hitObject.parent && hitObject.parent.type !== 'Scene') {
+			hitObject = hitObject.parent;
+		}
+								 
+		return hitObject;
+	}
+
+	return null;
+}
+
+function showTooltip(event, renderer){
+	const mouse = getMouseCoordOnCanvas(event, renderer);
+
+	let display_style_tooltip = 'none'
+
+	const hitObject = findHitObject(mouse);
+
+	if (hitObject) {
+		
+		// tooltip management
+		if (hitObject.highlightModel){
+			display_style_tooltip = 'block';
+			div_tooltip.innerHTML = `<strong>
+										${hitObject.tooltip.title}
+									</strong>
+									<br>
+										${hitObject.tooltip.text}`;
+			div_tooltip.style.left = (event.clientX + 10) + 'px';
+			div_tooltip.style.top = (event.clientY + 10) + 'px';
+		}
+		hitObject;
+	}
+	div_tooltip.style.display = display_style_tooltip;
+	return hitObject;
+}
+
+function hideTooltip(){
+	div_tooltip.style.display = 'none';
+}
+function deselectModel(){
+	mmLog("Object deselected");
+	highlightModel(selectedModel, false);
+	hideTooltip();
+	selectedModel = null;
+}
+
+function openLink(link){
+
+	if (link.endsWith('.glb') && !link.startsWith('http')) {
+		//if link is a GLB file, update URL without reloading entire page
+		const newUrl = new URL(window.location);
+		newUrl.searchParams.set('file', link);
+		history.pushState({}, '', newUrl);
+
+		loadGLB(link); 
+	}
+	else if (link.startsWith('http://') || link.startsWith('https://')) {
+		// open in new tab
+		window.open(link, '_blank');
+	}
+
+	selectedModel = null;
+	
+	mmLog(`You clicked on ${link}`);
+	
+}
+
+function checkIfTouchMoved(event){
+	
+	isTouchMoved = false;
+
+	if (selectedModel) {
+		const deltaX = Math.abs(event.clientX - touchStartX);
+		const deltaY = Math.abs(event.clientY - touchStartY);
+
+		if (deltaX > 10 || deltaY > 10) {
+			isTouchMoved = true;
+			mmLog("Touch moved")
+			// deselect model during movement
+			if (selectedModel) {
+				deselectModel();
+			}
+		}
+	}
+	touchStartX = event.clientX;
+	touchStartY = event.clientY;
+	
 }
 
 function loadGLB(file){
-	fileName = `3Dobjects/${file}`;
+	const glbPath = `3Dobjects/${file}`;
 	// check if file exixsts
-	fetch(fileName)
+	fetch(glbPath)
 		.then(response => {
 			if (!response.ok) {
 				throw new Error('GLB file not found.');
 			}
 
 			// Create scene, camera, renderer
-			const scene = new THREE.Scene();
+			scene = new THREE.Scene();
 			scene.background = new THREE.Color(0xffffff);
 
-			const camera = new THREE.PerspectiveCamera(75, window.innerWidth / (window.innerHeight / 2), 0.1, 1000);
 			const renderer = new THREE.WebGLRenderer();
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight / 2);
 			
-			const raycaster = new THREE.Raycaster();
-			const mouse = new THREE.Vector2()
+			camera = new THREE.PerspectiveCamera(75, window.innerWidth / (window.innerHeight / 2), 0.1, 1000);
+			raycaster = new THREE.Raycaster();
 
 			renderer.domElement.addEventListener( 'click', (event) =>
 			{
 				event.preventDefault();
 
-				// Ottieni la posizione del canvas rispetto alla finestra
-				const rect = renderer.domElement.getBoundingClientRect();
+				const mouse = getMouseCoordOnCanvas(event, renderer);
 
-				// Coordinate mouse relative al canvas
-				mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-				mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+				const hitObject = findHitObject(mouse);
 
-				raycaster.setFromCamera( mouse, camera );
-
-				var intersects = raycaster.intersectObjects( scene.children, true );
-
-				if (intersects.length > 0) {
-					const hitObject = intersects[0].object;
-					
-					// Risali la gerarchia fino al root del modello (quello aggiunto con scene.add())
-					let rootModel = hitObject;
-					while (rootModel.parent && rootModel.parent.type !== 'Scene') {
-						rootModel = rootModel.parent;
-					}
-					const nome = rootModel ? rootModel.name : 'Oggetto senza nome';
-					
-					//se esiste link associato, lo apro!
-					if (rootModel.tooltip && rootModel.tooltip.link){
-						const link = rootModel.tooltip.link;
-
-						if (link.endsWith('.glb') && !link.startsWith('http')) {
-							//if link is a GLB file, updtae URL without reloading entire page
-							const newUrl = new URL(window.location);
-							newUrl.searchParams.set('file', link);
-							history.pushState({}, '', newUrl);
-
-							loadGLB(link); 
-						}
-						else if (link.startsWith('http://') || link.startsWith('https://')) {
-							// Apri in nuova scheda (consigliato)
-               				 window.open(link, '_blank');
-						}
-	
-						if (DEBUG){	
-							console.log(`Hai cliccato su ${rootModel.tooltip.link}`);
-												// Opzionale: log completo solo se tieni premuto Shift (per debug)
-							if (event.shiftKey) {
-								console.log('Complete details:', intersects[0]);
-							}
-						}
-					}
-					else{
-						if (DEBUG){
-							console.log(`You clicked on ${rootModel.name} but thers is no link! Check config.json`);
-						}
-					}		
+				if (hitObject && hitObject.tooltip && hitObject.tooltip.link) {
+					openLink(hitObject.tooltip.link);
 				}
 			} );
 
 			renderer.domElement.addEventListener('mousemove', (event) => {
 				// ignora hover if user is dragging
 				if (orbitControlsisDragging) {
-					div_tooltip.style.display = 'none';//remove tooltip
+					hideTooltip();
 	
 					if (currentHoveredModel) {
 						highlightModel(currentHoveredModel, false);
@@ -172,40 +165,8 @@ function loadGLB(file){
 					}
 					return;
 				}
-				// Canvas coordinates
-				const rect = renderer.domElement.getBoundingClientRect();
-				mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-				mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-				raycaster.setFromCamera(mouse, camera);
-
-				// intersection with all objects in the scene
-				const intersects = raycaster.intersectObjects(scene.children, true);
-
-				let newHoveredModel = null;
-
-				let display_style_tooltip = 'none'
-				if (intersects.length > 0) {
-					let hitObject = intersects[0].object;
-
-					// find the root model
-					while (hitObject.parent && hitObject.parent.type !== 'Scene') {
-						hitObject = hitObject.parent;
-					}
-					// tooltip management
-					if (hitObject.highlightModel){
-						display_style_tooltip = 'block';
-						div_tooltip.innerHTML = `<strong>
-													${hitObject.tooltip.title}
-												</strong>
-												<br>
-													${hitObject.tooltip.text}`;
-						div_tooltip.style.left = (event.clientX + 10) + 'px';
-						div_tooltip.style.top = (event.clientY + 10) + 'px';
-					}
-					newHoveredModel = hitObject;
-				}
-				div_tooltip.style.display = display_style_tooltip;
+				
+				let newHoveredModel = showTooltip(event, renderer);
 
 				// if model changed....
 				if (newHoveredModel !== currentHoveredModel) {
@@ -221,6 +182,48 @@ function loadGLB(file){
 					currentHoveredModel = newHoveredModel;
 				}
 			});
+
+			renderer.domElement.addEventListener('touchstart', (touch) => {
+				touch.preventDefault(); //no scroll or zoom
+
+				const event = touch.touches[0];
+				checkIfTouchMoved(event);
+			
+				let hitObject = showTooltip(event, renderer);
+
+				if (hitObject) {
+					if (!isTouchMoved && selectedModel) {
+					
+						if (selectedModel.tooltip && selectedModel.tooltip.link) {
+							openLink(selectedModel.tooltip.link);
+						}
+						deselectModel();
+					}
+
+					// if highlightable...
+					if (hitObject.highlightModel !== false) {
+
+						selectedModel = hitObject;
+
+						highlightModel(selectedModel, true);
+						
+						mmLog('Touch start: selected ', selectedModel.name);
+
+					}
+				} 
+				else {
+					// Touchoutside: deselect and hide everything
+					if (selectedModel) {
+						deselectModel();
+					}
+				}
+			});
+
+			renderer.domElement.addEventListener('touchmove', (touch) => {
+				const event = touch.touches[0];
+				checkIfTouchMoved(event);
+			});
+
 			const viewerContainer = document.getElementById('viewer-container');
 			viewerContainer.innerHTML = '';
 			viewerContainer.appendChild(renderer.domElement);
@@ -231,20 +234,20 @@ function loadGLB(file){
 
 			// load GLB
 			const loader = new THREE.GLTFLoader();
-			loader.load(fileName, function (gltf) {//è in questo punto che il modello viene caricato in gltf
-				const configKey = fileName.split('/').pop();
+			loader.load(glbPath, function (gltf) { //load model from file
+				const configKey = glbPath.split('/').pop();
 
 				const model = gltf.scene;
 				loadModelPropertiesFromJson(model, config[configKey])
 		
-				model.highlightModel = false; //oggetto padre non illuminabile
+				model.highlightModel = false; //root object not highlightable
 				scene.add(model);
 					
-				// Carica i modelli che faranno da hotspot
+				// load hotpots models, if they exists
 				if (config[configKey] && config[configKey].hotspots) {
 					config[configKey].hotspots.forEach(h => {
 						
-						const loader2 = new THREE.GLTFLoader(); // puoi riutilizzare lo stesso loader, ma per chiarezza ne creo uno nuovo
+						const loader2 = new THREE.GLTFLoader(); 
 						loader2.load(`3Dobjects/${h.reference}`, function (gltf_temp) {
 							const secondary_model = gltf_temp.scene;
 							loadModelPropertiesFromJson(secondary_model, h)
@@ -258,7 +261,7 @@ function loadGLB(file){
 						});								
 					}
 				
-				// Posizione camera da config
+				//load camera position from config.json
 				let isPanEnabled = true;
 				if (config[configKey] && config[configKey].cameraPosition) {
 					const camType = config[configKey].cameraPosition.type;
@@ -300,7 +303,7 @@ function loadGLB(file){
 				animate();
 
 			}, undefined, function (error) {
-				console.error("Errore caricamento GLB:", error);
+				console.error("Error loading GLB:", error);
 			});
 		})
 		.catch(error => {
@@ -309,9 +312,10 @@ function loadGLB(file){
 			errorMsg.style.fontWeight = 'bold';
 			errorMsg.style.margin = '40px auto';
 			errorMsg.style.textAlign = 'center';
-			errorMsg.textContent = "Errore: il file GLB non esiste.";
+			errorMsg.textContent = "Error: GLB not exists";
 			document.body.appendChild(errorMsg);
 		});
+	reloadDescription(glbPath);
 }
 
 //Manage forward/backward commands from browser
@@ -319,10 +323,9 @@ window.addEventListener('popstate', (event) => {
     const newFile = getUrlParameter('file');
 
     if (newFile && newFile.endsWith('.glb')) {
-        if (DEBUG){
-			console.log('Back to:', newFile);
-		}
-        loadGLB(newFile);
+		mmLog('Back to:', newFile);
+
+    	loadGLB(newFile);
     } else {
 		//fallback to remove old scene
 		while (scene.children.length > 0) {
@@ -332,6 +335,8 @@ window.addEventListener('popstate', (event) => {
 });
 
 function mainLogic(){
+	var fileName = getUrlParameter('file');
+	const folderName = getUrlParameter('imgFolder');
 
 	if (!folderName && !fileName) {
 		const errorMsg = document.createElement('div');
@@ -346,7 +351,7 @@ function mainLogic(){
 		if (folderName != '') {
 			fileName = folderName + '.xxx';
 
-			// Visualizza le immagini come slider
+			// Display images as slider
 			fetch(`${folderName}/images.json`)				
 				.then(response => {
 					if (!response.ok) {
@@ -408,10 +413,10 @@ function mainLogic(){
 			
 			const fileType = fileName.split('.').pop().toLowerCase();
 		
-		if (fileType === 'glb') {
-			loadGLB(fileName);
-		}
-		else if (fileType === 'jpg' || fileType === 'png' || fileType === 'gif' || fileType === 'jpeg') {
+			if (fileType === 'glb') {
+				loadGLB(fileName);
+			}
+			else if (fileType === 'jpg' || fileType === 'png' || fileType === 'gif' || fileType === 'jpeg') {
 				// Check if image file exists
 				fetch(fileName)
 					.then(response => {
@@ -432,6 +437,7 @@ function mainLogic(){
 						document.body.appendChild(errorMsg);
 						console.error(error);
 					});
+				reloadDescription(fileName);
 			} 
 			else if (fileType === 'mp4' || fileType === 'webm' || fileType === 'ogg') {
 				// display video
@@ -440,53 +446,25 @@ function mainLogic(){
 				video.controls = true;
 				video.autoplay = true;
 				document.body.appendChild(video);
-				
+				reloadDescription(fileName);
 			} 		
 			else {
-				if (DEBUG){
-					console.error('Video format not supported');
-				}
+				mmError('Video format not supported');
 			}
 		}
-		// Load description from txt
-		const txtFileName = fileName.replace(/\.[^/.]+$/, ".txt");
-		fetch(txtFileName)
-			.then(response => {
-				if (!response.ok) {
-					throw new Error('Description file not found.');
-				}
-				return response.text();
-			})
-			.then(text => {
-				const description = document.createElement('p');
-				description.textContent = text;
-				const descriptionContainer = document.getElementById('description-container');
-				descriptionContainer.innerHTML = ''; // Pulisci eventuali precedenti
-				descriptionContainer.appendChild(description);
-			})
-			.catch(error => {
-				const errorMsg = document.createElement('div');
-				errorMsg.style.color = 'red';
-				errorMsg.style.fontWeight = 'bold';
-				errorMsg.style.margin = '40px auto';
-				errorMsg.style.textAlign = 'center';
-				errorMsg.textContent = "Error: file description not found!";
-				document.body.appendChild(errorMsg);
-				if (DEBUG){
-					console.error('Error loading description file:', error);
-				}
-			});
-		}
+	}
 }
 
 // Main
 // Global variables
-const DEBUG = true;
-const folderName = getUrlParameter('imgFolder');
-var fileName = getUrlParameter('file');
 
 let currentHoveredModel = null;
 let orbitControlsisDragging = null;
+let selectedModel = null; // model currrently selected by touch
+let touchStartX = 0;
+let touchStartY = 0;
+let isTouchMoved = false;
+let raycaster, camera, scene;
 
 let div_tooltip;
 let config = null;
@@ -499,29 +477,42 @@ document.addEventListener('DOMContentLoaded', function() {
     let menuLoaded = false;
 
     menuBtn.addEventListener('click', function() {
-        if (dropdownMenu.style.display === 'none') {
-            dropdownMenu.style.display = 'block';
-            if (!menuLoaded) {
-                fetch('3Dobjects/menulist.json')
-                    .then(response => response.json())
-                    .then(files => {
-                        dropdownMenu.innerHTML = '';
-                        files.forEach(item => {
-                            const link = document.createElement('a');
-                            link.href = `?file=${encodeURIComponent(item.file)}`;
-                            link.textContent = item.desc;
-                            dropdownMenu.appendChild(link);
+    if (dropdownMenu.style.display === 'none') {
+        dropdownMenu.style.display = 'block';
+        if (!menuLoaded) {
+            fetch('3DObjects/menulist.json')
+                .then(response => response.json())
+                .then(files => {
+                    dropdownMenu.innerHTML = '';
+                    files.forEach(item => {
+                        const link = document.createElement('a');
+                        link.href = '#'; // # prevents navigation
+                        link.textContent = item.desc;
+                        link.dataset.file = item.file; // save my link as attribute
+
+                        // Intercetta il click
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault(); // block default navigation
+
+							openLink(link.dataset.file);
+
+                            // Close menu
+                            dropdownMenu.style.display = 'none';
+                            
                         });
-                        menuLoaded = true;
-                    })
-                    .catch(() => {
-                        dropdownMenu.innerHTML = '<div style="color:red;padding:8px;">Impossibile caricare la lista dei file.</div>';
+
+                        dropdownMenu.appendChild(link);
                     });
-            }
-        } else {
-            dropdownMenu.style.display = 'none';
-        }
-    });
+                    menuLoaded = true;
+                })
+                .catch(() => {
+                    dropdownMenu.innerHTML = '<div style="color:red;padding:8px;">Impossibile caricare la lista dei file.</div>';
+                });
+        	}
+    	} else {
+       		dropdownMenu.style.display = 'none';
+    	}
+	});
 
     // Close menu if user clicks outside
     document.addEventListener('click', function(e) {
