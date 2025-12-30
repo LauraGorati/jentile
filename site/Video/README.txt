@@ -1,6 +1,7 @@
-Insert here the videos in .mp4/.webm/.ogg format linked to their corresponding .txt file for generating the description.
+Insert here the videos in .mp4 format linked to their corresponding .txt file for generating the description.
+You can also add .vtt subtitles with the same name.
 
-If you want to generate sbtitles from a video:
+If you want to generate subtitles from a video:
 
 # 1. Install Whisper and ffmpeg
 	1- pip install openai-whisper ffmpeg-python

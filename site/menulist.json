@@ -2,5 +2,6 @@
   { "file": "divano.glb", "desc": "Divano antico" },
   { "file": "esempio3D.glb", "desc": "Esempio 3D generico" },
   { "file": "mattone1.glb", "desc": "Mattone medievale" },
+  { "file": "cappella.glb", "desc": "Cappella" },
   { "file": "Seccamani.mp4", "desc": "Intervista a Romeo Seccamani" }
 ]

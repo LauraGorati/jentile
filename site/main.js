@@ -1,4 +1,5 @@
-import { mmLog, mmError, getMouseCoordOnCanvas, getUrlParameter, reloadDescription, addToViewerContainer, displayErrorMessage } from './utils.js';
+import { mmLog, mmError, getMouseCoordOnCanvas, getUrlParameter} from './utils.js';
+import { showLoading, hideLoading, displayErrorMessage, addToViewerContainer, reloadDescription} from './document.js'
 import { highlightModel, makeSelectable, loadModelPropertiesFromJson } from './models.js';
 
 function openFullscreenImage(src) 
@@ -129,7 +130,19 @@ function checkIfTouchMoved(event){
 	
 }
 
+function disposeGLBResources(){
+	scene = null;
+	camera = null;
+	renderer =null;
+}
+
 function loadVideo(file, extension){
+	//clean camera, renderer, scene...
+
+	showLoading();
+	
+	disposeGLBResources();
+
 	const videoPath = `Video/${file}`;
 	const subsPath = videoPath.replace(new RegExp(`\\.${extension}$`, 'i'), '.vtt');
 	
@@ -165,6 +178,7 @@ function loadVideo(file, extension){
 
 	addToViewerContainer(video);
 
+	hideLoading();
 	reloadDescription(videoPath);
 }
 
@@ -176,12 +190,13 @@ function loadGLB(file){
 			if (!response.ok) {
 				throw new Error('GLB file not found.');
 			}
+			showLoading();
 
 			// Create scene, camera, renderer
 			scene = new THREE.Scene();
 			scene.background = new THREE.Color(0xffffff);
 
-			const renderer = new THREE.WebGLRenderer();
+			renderer = new THREE.WebGLRenderer();
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight / 2);
 			
@@ -274,7 +289,7 @@ function loadGLB(file){
 			addToViewerContainer(renderer.domElement);
 		
 			// Ambient lightning
-			const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+			const ambientLight = new THREE.AmbientLight(0x0000ff, 1);
 			scene.add(ambientLight);
 
 			// load GLB
@@ -321,14 +336,14 @@ function loadGLB(file){
 						}
 					}
 				}
-
+		
 				// Orbit controls
 				const controls = new THREE.OrbitControls(camera, renderer.domElement);
 				controls.enableDamping = true;
 				controls.dampingFactor = 0.25;
 				controls.screenSpacePanning = false;
 				controls.minDistance = 0.5;
-				controls.maxDistance = 1.5;
+				controls.maxDistance = 100;
 				controls.enablePan = isPanEnabled;
 
 				controls.addEventListener('start', () => {
@@ -339,13 +354,17 @@ function loadGLB(file){
 				});
 
 				function animate() {
-					requestAnimationFrame(animate);
-					controls.update();
+					if (scene) {
+						requestAnimationFrame(animate);
+						controls.update();
 
-					renderer.render(scene, camera);
+						renderer.render(scene, camera);
+					}
 				}
 
 				animate();
+
+				hideLoading();
 
 			}, undefined, function (error) {
 				console.error("Error loading GLB:", error);
@@ -354,6 +373,7 @@ function loadGLB(file){
 		.catch(error => {
 			displayErrorMessage("Error: GLB file do not exists", error);
 		});
+	
 	reloadDescription(glbPath);
 }
 
@@ -466,7 +486,7 @@ function mainLogic(){
 					});
 				reloadDescription(fileName);
 			} 
-			else if (fileType === 'mp4' || fileType === 'webm' || fileType === 'ogg') {
+			else if (fileType === 'mp4') {
 				loadVideo(fileName, fileType);
 			} 		
 			else {
@@ -486,6 +506,7 @@ let touchStartX = 0;
 let touchStartY = 0;
 let isTouchMoved = false;
 let raycaster, camera, scene;
+let renderer = null;
 
 let div_tooltip;
 let config = null;
@@ -565,7 +586,7 @@ fetch('config.json')
 	});
 
 window.addEventListener('resize', () => {
-   if (typeof camera !== 'undefined' && typeof renderer !== 'undefined') {
+   if (typeof camera !== 'undefined' && renderer) {
         camera.aspect = window.innerWidth / (window.innerHeight / 2);
         camera.updateProjectionMatrix();
 
