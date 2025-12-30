@@ -142,3 +142,20 @@ header {
     color: #ffffff;
     text-decoration: none;
 }
+
+#description-container {
+  font-family: Arial, sans-serif; /* scegli il font */
+  font-size: 16px;               /* dimensione del testo */
+  color: black;                    /* colore del testo */
+  padding: 10px;                 /* spazio interno */
+}
+
+#error-container {
+  font-family: Arial, sans-serif; /* scegli il font */
+  font-size: 16px;               /* dimensione del testo */
+  color: red;                    /* colore del testo */
+  background-color: #f8d7da;     /* opzionale: sfondo per evidenziare l'errore */
+  padding: 10px;                 /* spazio interno */
+  border: 1px solid #f5c2c7;     /* bordo opzionale */
+  border-radius: 4px;            /* angoli arrotondati */
+}

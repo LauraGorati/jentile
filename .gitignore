@@ -1,4 +1,10 @@
-Leggimi.txt
+/TODO.txt
 markers/*.webloc
 
 .vs_code/
+
+site/3Dobjects/*.*
+!site/3Dobjects/README.txt
+
+site/Video/*.*
+!site/Video/README.txt

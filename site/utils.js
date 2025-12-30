@@ -5,7 +5,16 @@ export function mmLog(string){
 }
 
 export function mmError(string){
-	if (DEBUG) console.error(string);
+	if (DEBUG) {
+		console.log(string);	
+		console.error();
+	}
+}
+
+export function addToViewerContainer(element){
+	const viewerContainer = document.getElementById('viewer-container');
+	viewerContainer.innerHTML = '';
+	viewerContainer.appendChild(element);
 }
 
 export function getMouseCoordOnCanvas(event, renderer){
@@ -26,8 +35,23 @@ export function getUrlParameter(name) {
 	return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
+export function displayErrorMessage(message, error){
+	const errorDiv = document.getElementById('error-container');
+	errorDiv.textContent = message;
+	errorDiv.style.display = 'block';
+	if (error) mmError(error);
+}
+
+function clearError() {
+	const errorDiv = document.getElementById('error-container');
+	errorDiv.textContent = '';        // empty content
+	errorDiv.style.display = 'none';  // hide
+}
 
 export function reloadDescription(fileName){
+	//clean up
+	clearError();
+
 	// Load description from txt
 	const txtFileName = fileName.replace(/\.[^/.]+$/, ".txt");
 	fetch(txtFileName)
@@ -38,21 +62,11 @@ export function reloadDescription(fileName){
 			return response.text();
 		})
 		.then(text => {
-			const description = document.createElement('p');
-			description.textContent = text;
 			const descriptionContainer = document.getElementById('description-container');
-			descriptionContainer.innerHTML = ''; // Clean up
-			descriptionContainer.appendChild(description);
+			descriptionContainer.textContent = text;
+			descriptionContainer.style.display = 'block'; // assicura che sia visibile
 		})
 		.catch(error => {
-			const errorMsg = document.createElement('div');
-			errorMsg.style.color = 'red';
-			errorMsg.style.fontWeight = 'bold';
-			errorMsg.style.margin = '40px auto';
-			errorMsg.style.textAlign = 'center';
-			errorMsg.textContent = "Error: file description not found!";
-			document.body.appendChild(errorMsg);
-
-			mmError('Error loading description file:', error);
+			displayErrorMessage("Error: file description not found!", error)
 		});
 }

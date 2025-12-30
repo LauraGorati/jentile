@@ -1,4 +1,4 @@
-import { mmLog, mmError, getMouseCoordOnCanvas, getUrlParameter, reloadDescription } from './utils.js';
+import { mmLog, mmError, getMouseCoordOnCanvas, getUrlParameter, reloadDescription, addToViewerContainer, displayErrorMessage } from './utils.js';
 import { highlightModel, makeSelectable, loadModelPropertiesFromJson } from './models.js';
 
 function openFullscreenImage(src) 
@@ -88,6 +88,14 @@ function openLink(link){
 
 		loadGLB(link); 
 	}
+	else if (link.endsWith('.mp4') && !link.startsWith('http')) {
+		//if link is a mp4 file, update URL without reloading entire page
+		const newUrl = new URL(window.location);
+		newUrl.searchParams.set('file', link);
+		history.pushState({}, '', newUrl);
+
+		loadVideo(link, "mp4"); 
+	} 
 	else if (link.startsWith('http://') || link.startsWith('https://')) {
 		// open in new tab
 		window.open(link, '_blank');
@@ -119,6 +127,45 @@ function checkIfTouchMoved(event){
 	touchStartX = event.clientX;
 	touchStartY = event.clientY;
 	
+}
+
+function loadVideo(file, extension){
+	const videoPath = `Video/${file}`;
+	const subsPath = videoPath.replace(new RegExp(`\\.${extension}$`, 'i'), '.vtt');
+	
+	// display video
+	const video = document.createElement('video');
+	video.src = videoPath;
+	video.controls = true;
+	video.autoplay = true;
+	video.style.width = '80vw'; // 80% of screen width 
+	video.style.objectFit = 'contain'; // Maintain proportions
+
+	// Verifica esistenza sottotitoli con HEAD
+	(async () => {
+	try {
+		const res = await fetch(subsPath, { method: 'HEAD' });
+		if (res.ok) {
+		const track = document.createElement('track');
+		track.kind    = 'subtitles';
+		track.src     = subsPath;
+		track.srclang = 'it';
+		track.label   = 'Italiano';
+		track.default = true;
+		video.appendChild(track);
+		mmLog(`Sottotitoli aggiunti: ${subsPath}`);
+		} 
+		else {
+		console.warn('Sottotitoli non disponibili (status:', res.status, ')');
+		}
+	} catch (err) {
+		mmLog('Errore nel controllo sottotitoli:', err);
+	}
+	})();
+
+	addToViewerContainer(video);
+
+	reloadDescription(videoPath);
 }
 
 function loadGLB(file){
@@ -224,10 +271,8 @@ function loadGLB(file){
 				checkIfTouchMoved(event);
 			});
 
-			const viewerContainer = document.getElementById('viewer-container');
-			viewerContainer.innerHTML = '';
-			viewerContainer.appendChild(renderer.domElement);
-
+			addToViewerContainer(renderer.domElement);
+		
 			// Ambient lightning
 			const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 			scene.add(ambientLight);
@@ -307,13 +352,7 @@ function loadGLB(file){
 			});
 		})
 		.catch(error => {
-			const errorMsg = document.createElement('div');
-			errorMsg.style.color = 'red';
-			errorMsg.style.fontWeight = 'bold';
-			errorMsg.style.margin = '40px auto';
-			errorMsg.style.textAlign = 'center';
-			errorMsg.textContent = "Error: GLB not exists";
-			document.body.appendChild(errorMsg);
+			displayErrorMessage("Error: GLB file do not exists", error);
 		});
 	reloadDescription(glbPath);
 }
@@ -339,13 +378,7 @@ function mainLogic(){
 	const folderName = getUrlParameter('imgFolder');
 
 	if (!folderName && !fileName) {
-		const errorMsg = document.createElement('div');
-		errorMsg.style.color = 'red';
-		errorMsg.style.fontWeight = 'bold';
-		errorMsg.style.margin = '40px auto';
-		errorMsg.style.textAlign = 'center';
-		errorMsg.textContent = "No file name provided in URL. Use '?file=name.glb' or '?imgFolder=folder'.";
-		document.body.appendChild(errorMsg);
+		displayErrorMessage( "No file name provided in URL. Use '?file=name.glb' or '?imgFolder=folder' or top-right menu to select an asset", null); 
 	}
 	else {
 		if (folderName != '') {
@@ -376,8 +409,9 @@ function mainLogic(){
 					swiperWrapper.appendChild(swiperSlide); 
 				});
 				swiperContainer.appendChild(swiperWrapper);
-				document.body.appendChild(swiperContainer);
 
+				addToViewerContainer(swiperContainer);
+		
 				const swiper = new Swiper('.swiper-container', {
 					effect: 'coverflow',
 					grabCursor: true, 
@@ -425,28 +459,15 @@ function mainLogic(){
 						}
 						const img = document.createElement('img');
 						img.src = fileName;
-						document.body.appendChild(img);
+						addToViewerContainer(img);
 					})
 					.catch(error => {
-						const errorMsg = document.createElement('div');
-						errorMsg.style.color = 'red';
-						errorMsg.style.fontWeight = 'bold';
-						errorMsg.style.margin = '40px auto';
-						errorMsg.style.textAlign = 'center';
-						errorMsg.textContent = "Errore: il file immagine non esiste.";
-						document.body.appendChild(errorMsg);
-						console.error(error);
+						displayErrorMessage("Error: Image file do not exists", error);
 					});
 				reloadDescription(fileName);
 			} 
 			else if (fileType === 'mp4' || fileType === 'webm' || fileType === 'ogg') {
-				// display video
-				const video = document.createElement('video');
-				video.src = fileName;
-				video.controls = true;
-				video.autoplay = true;
-				document.body.appendChild(video);
-				reloadDescription(fileName);
+				loadVideo(fileName, fileType);
 			} 		
 			else {
 				mmError('Video format not supported');
@@ -475,12 +496,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuBtn = document.getElementById('menu-btn');
     const dropdownMenu = document.getElementById('dropdown-menu');
     let menuLoaded = false;
-
+	
     menuBtn.addEventListener('click', function() {
     if (dropdownMenu.style.display === 'none') {
         dropdownMenu.style.display = 'block';
         if (!menuLoaded) {
-            fetch('3DObjects/menulist.json')
+            fetch('menulist.json')
                 .then(response => response.json())
                 .then(files => {
                     dropdownMenu.innerHTML = '';
@@ -522,7 +543,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
 // load html from config.json
 fetch('config.json')
     .then(response => response.json())
@@ -540,7 +560,9 @@ fetch('config.json')
 
 		mainLogic();
     })
-    .catch(err => console.warn('Cannot load html texts: config.json not found', err));
+    .catch(err => {
+		displayErrorMessage("Cannot load html texts: config.json not found", err);
+	});
 
 window.addEventListener('resize', () => {
    if (typeof camera !== 'undefined' && typeof renderer !== 'undefined') {
