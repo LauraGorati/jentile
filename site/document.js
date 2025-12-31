@@ -16,7 +16,9 @@ export function addToViewerContainer(element){
 }
 
 export function displayErrorMessage(message, error){
+	clearDescription();
 	hideLoading();
+
 	const errorDiv = document.getElementById('error-container');
 	errorDiv.textContent = message;
 	errorDiv.style.display = 'block';
@@ -29,6 +31,11 @@ function clearError() {
 	errorDiv.style.display = 'none';  // hide
 }
 
+function clearDescription() {
+	const descrDiv = document.getElementById('description-container');
+	descrDiv.textContent = '';        // empty content
+	descrDiv.style.display = 'none';  // hide
+}
 
 export function reloadDescription(fileName){
 	//clean up

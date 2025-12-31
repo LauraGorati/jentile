@@ -8,27 +8,36 @@
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
 </head>
 <body>
-    <header> 
+   
+    <header>
         <h1 id="header-title">Loading...</h1>
-        <button id="menu-btn" class="menu-btn" aria-label="Apri menu">
-            <span></span>
-            <span></span>
-            <span></span>
+        <button id="menu-btn" class="menu-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
         </button>
         <div id="dropdown-menu" class="dropdown-menu" style="display:none;"></div>
     </header>
+
     <div id="viewer-container"></div>
     
-    <!-- Overlay caricamento -->
+    <!-- Spinner overlay -->
     <div id="loading-overlay" hidden>
         <div class="spinner"></div>
         <div class="loading-text">Loading...</div>
     </div>
+    
+    <!-- Bottom sheet -->
+    <div id="bottom-sheet" role="dialog" aria-label="Informazioni" aria-modal="false">
+        <button id="sheet-handle" class="sheet-handle" aria-expanded="false" aria-controls="sheet-content">
+            <span class="grabber" aria-hidden="true"></span>
+            <span class="handle-label">Dettagli</span>
+        </button>
+        <div id="sheet-content" class="sheet-content">
+            <div id="error-container"></div>
+            <div id="description-container"></div>
+        </div>
+    </div>
 
-    <div id="description-container"></div>
-    <div id="error-container"></div>
-
-    <!-- Script Three.js aggiornati -->
+    <!-- Script Three.js at thi right version -->
   	<script src="https://unpkg.com/three@0.143.0/build/three.min.js"></script>
 	<script src="https://unpkg.com/three@0.143.0/examples/js/loaders/GLTFLoader.js"></script>
 	<script src="https://unpkg.com/three@0.143.0/examples/js/controls/OrbitControls.js"></script>
@@ -43,13 +52,12 @@
 			border-radius: 8px;
 			font-family: Arial, sans-serif;
 			font-size: 14px;
-			pointer-events: none; /* importante: non blocca il mouse */
+			pointer-events: none; /* important: not blocking mouse events! */
 			display: none;
 			z-index: 100;
 			max-width: 300px;
 			box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 		">
 	</div>
-    <footer id="footer-text">Loading...</footer>
 </body>
 </html>

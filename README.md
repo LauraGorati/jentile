@@ -48,7 +48,7 @@ python -m http.server 8000
 
 ## Configuration and usage
 
-- Edit `site/config.json` to change titles, footer, and global settings.
+- Edit `site/config.json` to change titles, and global settings.
 - Add or update entries in `site/menulist.json` to include new 3D models in the dropdown menu.
 - Per-model settings (camera position, hotspots, tooltips, links) are defined in `site/config.json`
 - The main page `site/jentile.html` reads configuration and loads marker-associated content dynamically.

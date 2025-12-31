@@ -151,7 +151,7 @@ function loadVideo(file, extension){
 	video.src = videoPath;
 	video.controls = true;
 	video.autoplay = true;
-	video.style.width = '80vw'; // 80% of screen width 
+	video.style.width = '100vw'; // 80% of screen width 
 	video.style.objectFit = 'contain'; // Maintain proportions
 
 	// Verifica esistenza sottotitoli con HEAD
@@ -180,6 +180,21 @@ function loadVideo(file, extension){
 
 	hideLoading();
 	reloadDescription(videoPath);
+	forceCloseSheet();
+
+}
+
+// Funzione che adatta *esattamente* al container
+function resizeToContainer() {
+	const container = document.getElementById('viewer-container');
+	const w = container.clientWidth;
+	const h = container.clientHeight;
+	if (w === 0 || h === 0) return; // evita divisioni per zero
+	if (renderer){
+		renderer.setSize(w, h, false);       // false => non toccare style width/height (li settiamo via CSS)
+		camera.aspect = w / h;
+		camera.updateProjectionMatrix();
+	}
 }
 
 function loadGLB(file){
@@ -197,11 +212,16 @@ function loadGLB(file){
 			scene.background = new THREE.Color(0xffffff);
 
 			renderer = new THREE.WebGLRenderer();
-			renderer.setPixelRatio(window.devicePixelRatio);
-			renderer.setSize(window.innerWidth, window.innerHeight / 2);
+			
+			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // qualità/performanza
+			renderer.domElement.style.width = '100%';
+			renderer.domElement.style.height = '100%';
 			
 			camera = new THREE.PerspectiveCamera(75, window.innerWidth / (window.innerHeight / 2), 0.1, 1000);
 			raycaster = new THREE.Raycaster();
+
+			// Primo resize
+			resizeToContainer();
 
 			renderer.domElement.addEventListener( 'click', (event) =>
 			{
@@ -375,6 +395,7 @@ function loadGLB(file){
 		});
 	
 	reloadDescription(glbPath);
+	forceCloseSheet();
 }
 
 //Manage forward/backward commands from browser
@@ -398,6 +419,7 @@ function mainLogic(){
 	const folderName = getUrlParameter('imgFolder');
 
 	if (!folderName && !fileName) {
+		forceOpenSheet();
 		displayErrorMessage( "No file name provided in URL. Use '?file=name.glb' or '?imgFolder=folder' or top-right menu to select an asset", null); 
 	}
 	else {
@@ -511,6 +533,16 @@ let renderer = null;
 let div_tooltip;
 let config = null;
 
+//global variables for bottom-sheet
+const sheet = document.getElementById('bottom-sheet');
+const handle = document.getElementById('sheet-handle');
+
+const collapsedH = parseInt(getComputedStyle(document.documentElement)
+  .getPropertyValue('--sheet-collapsed-h'));
+let startY = 0;
+let startTranslate = 0;
+let currentTranslate = null;
+
 // Top right dropdown menu
 document.addEventListener('DOMContentLoaded', function() {
 	div_tooltip = document.getElementById('model-tooltip');
@@ -576,9 +608,6 @@ fetch('config.json')
         const headerEl = document.getElementById('header-title');
         if (headerEl) headerEl.textContent = config.html.headerTitle;
 
-        const footerEl = document.getElementById('footer-text');
-        if (footerEl) footerEl.textContent = config.html.footer;
-
 		mainLogic();
     })
     .catch(err => {
@@ -590,7 +619,86 @@ window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / (window.innerHeight / 2);
         camera.updateProjectionMatrix();
 
-        renderer.setSize(window.innerWidth, window.innerHeight / 2);
+		resizeToContainer();
+		if (!sheet.classList.contains('expanded')) {
+			sheet.style.transform = '';
+		}
     }
 });
 
+/* Helper: imposta translateY su pixel */
+function setTranslateY(px) {
+  sheet.style.transform = `translateY(${px}px)`;
+}
+
+/* Calcola il translateY per stato collapsed */
+function collapsedTranslate() {
+  // altezza reale del sheet
+  const h = sheet.getBoundingClientRect().height;
+  const safe = (typeof CSS !== 'undefined' && CSS.supports('top: env(safe-area-inset-bottom)')) ? 0 : 0;
+  return Math.max(0, h - collapsedH + safe);
+}
+
+function forceOpenSheet(){
+	sheet.classList.add('expanded');
+    handle.setAttribute('aria-expanded', 'true');
+}
+
+function forceCloseSheet(){
+	sheet.classList.remove('expanded');
+    handle.setAttribute('aria-expanded', 'false');
+}
+
+/* Toggle (click/tap sull'handle) */
+function toggleSheet() {
+  const expanded = sheet.classList.toggle('expanded');
+  handle.setAttribute('aria-expanded', String(expanded));
+  sheet.style.transform = '';
+}
+handle.addEventListener('click', toggleSheet);
+
+/* Drag: mouse/touch pointer events */
+function onPointerDown(e) {
+  sheet.classList.add('dragging');
+  startY = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
+  const isExpanded = sheet.classList.contains('expanded');
+  startTranslate = isExpanded ? 0 : collapsedTranslate();
+  currentTranslate = startTranslate;
+
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('touchmove', onPointerMove, { passive: true });
+  window.addEventListener('touchend', onPointerUp);
+}
+
+function onPointerMove(e) {
+  const y = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
+  const dy = y - startY;
+  const maxCol = collapsedTranslate(); // limite basso
+  const next = Math.min(Math.max(0, startTranslate + dy), maxCol);
+  currentTranslate = next;
+  setTranslateY(next);
+}
+
+function onPointerUp() {
+  sheet.classList.remove('dragging');
+
+  const threshold = collapsedTranslate() * 0.5; // soglia metà
+  if (currentTranslate !== null) {
+    if (currentTranslate < threshold) {
+    	forceOpenSheet();
+    } else {
+    	forceCloseSheet();
+    }
+  }
+  // ripristina trasform inline per usare la classe
+  sheet.style.transform = '';
+  window.removeEventListener('pointermove', onPointerMove);
+  window.removeEventListener('pointerup', onPointerUp);
+  window.removeEventListener('touchmove', onPointerMove);
+  window.removeEventListener('touchend', onPointerUp);
+}
+
+/* Attacca il drag all'handle (e, se vuoi, al bordo del sheet) */
+handle.addEventListener('pointerdown', onPointerDown);
+handle.addEventListener('touchstart', onPointerDown, { passive: true });
