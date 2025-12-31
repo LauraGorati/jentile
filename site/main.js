@@ -80,27 +80,30 @@ function deselectModel(){
 }
 
 function openLink(link){
+	hideTooltip();
+	
+	showLoading();
 
-	if (link.endsWith('.glb') && !link.startsWith('http')) {
-		//if link is a GLB file, update URL without reloading entire page
-		const newUrl = new URL(window.location);
-		newUrl.searchParams.set('file', link);
-		history.pushState({}, '', newUrl);
-
-		loadGLB(link); 
+	let showBottomSheet = true;
+	if (!link.startsWith('http')){
+		pushUrl("file", link);
+		
+		if (link.endsWith('.glb')) {
+			loadGLB(link); 
+		}
+		else if (link.endsWith('.jpg')|| link.endsWith('.png') || link.endsWith('.gif') || link.endsWith('.jpeg')) {
+			loadImage(link);
+		} 
+		else if (link.endsWith('.mp4')) {
+			loadVideo(link, "mp4");			
+			showBottomSheet = false;
+		} 
 	}
-	else if (link.endsWith('.mp4') && !link.startsWith('http')) {
-		//if link is a mp4 file, update URL without reloading entire page
-		const newUrl = new URL(window.location);
-		newUrl.searchParams.set('file', link);
-		history.pushState({}, '', newUrl);
-
-		loadVideo(link, "mp4"); 
-	} 
 	else if (link.startsWith('http://') || link.startsWith('https://')) {
 		// open in new tab
 		window.open(link, '_blank');
 	}
+	showSheet(showBottomSheet);
 
 	selectedModel = null;
 	
@@ -136,11 +139,42 @@ function disposeGLBResources(){
 	renderer =null;
 }
 
+function applyPadding(element){
+	element.style.display = 'block';       // evita spazi indesiderati
+	element.style.margin = '0 auto';       // centra orizzontalmente
+	element.style.paddingTop = '56px';      // padding sopra e sotto
+	element.style.paddingBottom = '56px';
+	element.style.width = '100%';          // occupa tutta la larghezza del contenitore
+	element.style.height = 'auto';         // mantiene proporzioni
+}
+
+function loadImage(file){
+	//clean camera, renderer, scene...
+	disposeGLBResources();
+	const imagePath = `Images/${file}`;
+
+	// Check if image file exists
+	fetch(imagePath)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Image file not found');
+			}
+			const img = document.createElement('img');
+			img.src = imagePath;
+						
+			applyPadding(img);
+
+			addToViewerContainer(img);
+			hideLoading();
+		})
+		.catch(error => {
+			displayErrorMessage("Error: Image file do not exists", error);
+		});
+	reloadDescription(imagePath);
+}
+
 function loadVideo(file, extension){
 	//clean camera, renderer, scene...
-
-	showLoading();
-	
 	disposeGLBResources();
 
 	const videoPath = `Video/${file}`;
@@ -205,7 +239,6 @@ function loadGLB(file){
 			if (!response.ok) {
 				throw new Error('GLB file not found.');
 			}
-			showLoading();
 
 			// Create scene, camera, renderer
 			scene = new THREE.Scene();
@@ -309,7 +342,7 @@ function loadGLB(file){
 			addToViewerContainer(renderer.domElement);
 		
 			// Ambient lightning
-			const ambientLight = new THREE.AmbientLight(0x0000ff, 1);
+			const ambientLight = new THREE.AmbientLight(config["viewer"].ambient, 1);
 			scene.add(ambientLight);
 
 			// load GLB
@@ -400,22 +433,97 @@ function loadGLB(file){
 
 //Manage forward/backward commands from browser
 window.addEventListener('popstate', (event) => {
-    const newFile = getUrlParameter('file');
-
-    if (newFile && newFile.endsWith('.glb')) {
-		mmLog('Back to:', newFile);
-
-    	loadGLB(newFile);
-    } else {
-		//fallback to remove old scene
-		while (scene.children.length > 0) {
-            scene.remove(scene.children[0]);
-        }
-    }
+    
+	mainLogic();
 });
 
+function pushUrl(parameter, value){
+	const newUrl = new URL(window.location);
+	// Rimuove tutti i parametri (?...)
+	newUrl.search = '';
+	newUrl.searchParams.set(parameter, value);
+	history.pushState({}, '', newUrl);
+}
+function loadSlideShow(folderName){
+	
+	pushUrl("imgFolder", folderName);
+
+	fetch(`${folderName}/images.json`)				
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Image folder or file images.json not found.');
+			}
+			return response.json();
+		})		
+		.then(data => { 
+		const images = data.images; 
+		const swiperContainer = document.createElement('div'); 
+		swiperContainer.className = 'swiper-container'; 
+		const swiperWrapper = document.createElement('div'); 
+		swiperWrapper.className = 'swiper-wrapper'; 
+		images.forEach(image => 
+			{ 
+			const swiperSlide = document.createElement('div'); 
+			swiperSlide.className = 'swiper-slide'; 
+			const img = document.createElement('img'); 
+			img.src = `${folderName}/${image}`; 
+			
+			// Mantieni proporzioni e centra
+			img.style.display = 'block';
+			img.style.maxWidth = '100%';
+			img.style.maxHeight = '100%';   // limita l'altezza all'area della slide
+			img.style.objectFit = 'contain'; // evita deformazioni
+			img.style.margin = '0 auto';     // centra orizzontalmente
+
+			img.addEventListener('click', () => openFullscreenImage(img.src));
+			swiperSlide.appendChild(img); 
+			swiperWrapper.appendChild(swiperSlide); 
+		});
+		
+		swiperContainer.style.height = '60%';          // 60% del viewer che lo contiene
+		swiperContainer.style.width = '100%';
+		swiperContainer.style.margin = '0 auto';       // centra orizzontalmente se il viewer è più largo
+
+		swiperContainer.appendChild(swiperWrapper);
+
+		applyPadding(swiperContainer);
+
+		addToViewerContainer(swiperContainer);
+
+		const swiper = new Swiper('.swiper-container', {
+			effect: 'coverflow',
+			grabCursor: true, 
+			centeredSlides: true,
+			slidesPerView: '2',
+			loop: false, 
+			coverflowEffect: 
+				{ 
+				rotate: 50, 
+				stretch: 0, 
+				depth: 100, 
+				modifier: 1, 
+				slideShadows: false, 
+			}, 
+			pagination: 
+				{ 
+				el: '.swiper-pagination', 
+				clickable: true, 
+			}, 
+			navigation: 
+				{ 
+				nextEl: '.swiper-button-next', 
+				prevEl: '.swiper-button-prev', 
+			},
+		});
+	})
+	.catch(error => console.error('Error loading images page:', error));	
+
+	reloadDescription(`${folderName}/Slideshow.txt`);
+
+}
+
 function mainLogic(){
-	var fileName = getUrlParameter('file');
+	const fileName = getUrlParameter('file');
 	const folderName = getUrlParameter('imgFolder');
 
 	if (!folderName && !fileName) {
@@ -423,97 +531,14 @@ function mainLogic(){
 		displayErrorMessage( "No file name provided in URL. Use '?file=name.glb' or '?imgFolder=folder' or top-right menu to select an asset", null); 
 	}
 	else {
-		if (folderName != '') {
-			fileName = folderName + '.xxx';
-
-			// Display images as slider
-			fetch(`${folderName}/images.json`)				
-				.then(response => {
-					if (!response.ok) {
-						throw new Error('Image folder or file images.json not found.');
-					}
-					return response.json();
-				})		
-				.then(data => { 
-				const images = data.images; 
-				const swiperContainer = document.createElement('div'); 
-				swiperContainer.className = 'swiper-container'; 
-				const swiperWrapper = document.createElement('div'); 
-				swiperWrapper.className = 'swiper-wrapper'; 
-				images.forEach(image => 
-					{ 
-					const swiperSlide = document.createElement('div'); 
-					swiperSlide.className = 'swiper-slide'; 
-					const img = document.createElement('img'); 
-					img.src = `${folderName}/${image}`; 
-					img.addEventListener('click', () => openFullscreenImage(img.src));
-					swiperSlide.appendChild(img); 
-					swiperWrapper.appendChild(swiperSlide); 
-				});
-				swiperContainer.appendChild(swiperWrapper);
-
-				addToViewerContainer(swiperContainer);
-		
-				const swiper = new Swiper('.swiper-container', {
-					effect: 'coverflow',
-					grabCursor: true, 
-					centeredSlides: true,
-					slidesPerView: '2',
-					loop: false, 
-					coverflowEffect: 
-						{ 
-						rotate: 50, 
-						stretch: 0, 
-						depth: 100, 
-						modifier: 1, 
-						slideShadows: true, 
-					}, 
-					pagination: 
-						{ 
-						el: '.swiper-pagination', 
-						clickable: true, 
-					}, 
-					navigation: 
-						{ 
-						nextEl: '.swiper-button-next', 
-						prevEl: '.swiper-button-prev', 
-					},
-				});
-			})
-			.catch(error => console.error('Error loading images page:', error));		
+		if (folderName) {
+			loadSlideShow(folderName);	
 		}
 		else
 		{
 			// obtan file name from file parameter
-			fileName = getUrlParameter('file');
-			
-			const fileType = fileName.split('.').pop().toLowerCase();
-		
-			if (fileType === 'glb') {
-				loadGLB(fileName);
-			}
-			else if (fileType === 'jpg' || fileType === 'png' || fileType === 'gif' || fileType === 'jpeg') {
-				// Check if image file exists
-				fetch(fileName)
-					.then(response => {
-						if (!response.ok) {
-							throw new Error('Image file not found');
-						}
-						const img = document.createElement('img');
-						img.src = fileName;
-						addToViewerContainer(img);
-					})
-					.catch(error => {
-						displayErrorMessage("Error: Image file do not exists", error);
-					});
-				reloadDescription(fileName);
-			} 
-			else if (fileType === 'mp4') {
-				loadVideo(fileName, fileType);
-			} 		
-			else {
-				mmError('Video format not supported');
-			}
+			const link = getUrlParameter('file');			
+			openLink(link);
 		}
 	}
 }
@@ -559,17 +584,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(files => {
                     dropdownMenu.innerHTML = '';
                     files.forEach(item => {
-                        const link = document.createElement('a');
+						const link = document.createElement('a');
                         link.href = '#'; // # prevents navigation
                         link.textContent = item.desc;
-                        link.dataset.file = item.file; // save my link as attribute
-
+						
                         // Intercetta il click
                         link.addEventListener('click', (e) => {
                             e.preventDefault(); // block default navigation
 
-							openLink(link.dataset.file);
-
+							if (item.file){
+                        		link.dataset.file = item.file; // save my link as attribute
+								openLink(link.dataset.file);
+							}
+							else if (item.folder){
+								link.dataset.file = item.folder; // save my link as attribute
+								loadSlideShow(link.dataset.file);
+							}
                             // Close menu
                             dropdownMenu.style.display = 'none';
                             
@@ -639,6 +669,12 @@ function collapsedTranslate() {
   return Math.max(0, h - collapsedH + safe);
 }
 
+function showSheet(show) {
+	
+    sheet.style.display = show ? 'block' : 'none';
+}
+
+
 function forceOpenSheet(){
 	sheet.classList.add('expanded');
     handle.setAttribute('aria-expanded', 'true');
@@ -659,6 +695,11 @@ handle.addEventListener('click', toggleSheet);
 
 /* Drag: mouse/touch pointer events */
 function onPointerDown(e) {
+	
+  // Blocca scroll/gesture del body o degli elementi sotto
+  e.stopPropagation();
+  if (e.cancelable) e.preventDefault()
+
   sheet.classList.add('dragging');
   startY = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
   const isExpanded = sheet.classList.contains('expanded');
@@ -672,6 +713,11 @@ function onPointerDown(e) {
 }
 
 function onPointerMove(e) {
+	
+  // Blocca scroll/gesture del body o degli elementi sotto
+  e.stopPropagation();
+  if (e.cancelable) e.preventDefault()
+
   const y = e.clientY ?? (e.touches ? e.touches[0].clientY : 0);
   const dy = y - startY;
   const maxCol = collapsedTranslate(); // limite basso

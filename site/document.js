@@ -53,7 +53,10 @@ export function reloadDescription(fileName){
 		.then(text => {
 			const descriptionContainer = document.getElementById('description-container');
 			descriptionContainer.textContent = text;
-			descriptionContainer.style.display = 'block'; // assicura che sia visibile
+			descriptionContainer.style.display = 'block'; // make sure is visible
+			descriptionContainer.style.whiteSpace = 'pre-wrap'; // follow \n e \r\n
+			descriptionContainer.style.wordBreak = 'break-word'; 
+
 		})
 		.catch(error => {
 			displayErrorMessage("Error: file description not found!", error)

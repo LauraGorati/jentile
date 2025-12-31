@@ -8,3 +8,11 @@ site/3Dobjects/*.*
 
 site/Video/*.*
 !site/Video/README.txt
+
+site/Images/*.*
+!site/Images/README.txt
+
+site/Slideshow/*.*
+!site/Slideshow/README.txt
+!site/Slideshow/Slideshow.txt
+!site/Slideshow/images.json

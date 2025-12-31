@@ -175,6 +175,7 @@ header h1 {
 }
 
 #bottom-sheet {
+  touch-action: none; /* evita panning/scroll di default su mobile */
   position: fixed;
   left: 0; right: 0; bottom: 0;
   height: var(--sheet-expanded-h);
@@ -268,29 +269,30 @@ header h1 {
 
 /* VIEWER FULL-SCREEN */
 #viewer-container {
+    
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
     position: absolute;
-    inset: 0;         /* top/right/bottom/left: 0 */
-    z-index: 1;       /* sotto l’header */
+    inset: 0;        
+    z-index: 1;     
     object-fit: contain;
     background: #fff;
 }
 
 /* Se dentro al viewer hai video o canvas */
 #viewer-container img,
+#viewer-container video,
 #viewer-container canvas {
     inset: 0;
     width: 100vw;
     height: 100vh;
 }
 
-/* Il video non usa 100% in altezza, ma lascia spazio ai pannelli */
-#viewer-container video {
-    left: 0; right: 0; top: 0;
-    height: calc(100vh - var(--sheet-collapsed-h));   /* lascia ~96px in fondo per overlay+controlli */
-}
-
 /* overlay a schermo intero */
-#loading-overlay[hidden] { display: none; }
+#loading-overlay[hidden] { 
+    display: none; 
+}
 
 #loading-overlay {
     position: fixed;
