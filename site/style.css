@@ -269,7 +269,7 @@ header h1 {
 
 /* VIEWER FULL-SCREEN */
 #viewer-container {
-    
+    touch-action: pan-x pan-y pinch-zoom; /* permette pinch solo al canvas */
     display: flex;
     align-items: center; 
     justify-content: center; 

@@ -4,7 +4,7 @@
     "headerTitle": "Lo Studiolo Malatestiano"
   },
   "viewer":{
-    "ambient" : "yellow"
+    "ambient" : "white"
   },
   "mattone1.glb": {
     "name" : "MATTONE",
@@ -26,13 +26,13 @@
         "link": "https://google.com/" 
       },
       { 
-        "reference": "divano.glb", 
-        "name": "DIVANO GRANDE",
-        "scale": { "x": 0.002, "y": 0.002, "z": 0.002}, 
+        "reference": "cuboprova1.glb", 
+        "name": "CUBO",
+        "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
         "position": { "x": 0.4, "y": 0.0, "z": 0 }, 
         "title": "Titolo per la hoverbox",
-        "text": "Questo è il divano grande che ti porta su di lui", 
-        "link": "divano.glb" 
+        "text": "Questo è il cubo grande che ti porta su di lui", 
+        "link": "cuboprova1.glb" 
       } 
     ] 
   },
@@ -40,11 +40,11 @@
     "name" : "DIVANO",
     "cameraPosition": {
       "type": "position", 
-      "external": { "x": 0.4, "y": 0, "z": 0 },
+      "external": { "x": 0, "y": 0.47, "z": 0.9 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
-    "scale": { "x": 0.002, "y": 0.002, "z": 0.002}, 
-    "position":   { "x": 0, "y": 0, "z": 0 },
+    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
+    "position": { "x": 0.4, "y": 0.0, "z": 0 }, 
     "hotspots": [ 
       
     ]  
@@ -72,5 +72,29 @@
     "hotspots": [ 
       
     ]   
-  }      
+  },
+  "Gentile_Lunetta_N_O.glb": {
+    "cameraPosition": {
+      "type": "external", 
+      "external": { "x": 0, "y": 0, "z": 0.1 },   
+      "lookAt": { "x": 0, "y": 0, "z": -1 }
+    },
+    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
+    "position":   { "x": 0, "y": -0.05, "z": 0 },
+    "hotspots": [ 
+      
+    ]   
+  },
+  "cuboprova1.glb": {
+    "cameraPosition": {
+      "type": "internal", 
+      "internal": { "x": 0, "y": 0, "z": 0.1 },   
+      "lookAt": { "x": 0, "y": 0, "z": -1 }
+    },    
+    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
+    "hotspots": [ 
+      
+    ]   
+  }    
 }

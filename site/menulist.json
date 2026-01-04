@@ -1,7 +1,8 @@
 [
   { "file": "divano.glb", "desc": "Divano antico" },
   { "file": "mattone1.glb", "desc": "Mattone medievale" },
-  { "file": "cappella.glb", "desc": "Cappella" },
+  { "file": "Gentile_Lunetta_N_O.glb", "desc": "Gentile Lunetta"},
+  { "file": "cuboprova1.glb", "desc": "Cubo"},
   { "file": "Seccamani.mp4", "desc": "Intervista a Romeo Seccamani" },
   { "folder": "Slideshow", "desc": "Slideshow di immagini" }
 ]

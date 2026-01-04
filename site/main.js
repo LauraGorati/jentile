@@ -390,14 +390,28 @@ function loadGLB(file){
 					}
 				}
 		
-				// Orbit controls
-				const controls = new THREE.OrbitControls(camera, renderer.domElement);
-				controls.enableDamping = true;
-				controls.dampingFactor = 0.25;
-				controls.screenSpacePanning = false;
-				controls.minDistance = 0.5;
+				const controls = new THREE.TrackballControls(camera, renderer.domElement);
+				// Impostazioni essenziali per farlo muovere
+				controls.rotateSpeed = 10.0;     // velocità rotazione (regola a piacere)
+				controls.zoomSpeed = 1.2;
+				controls.panSpeed = 0.8;
+
+				controls.noRotate = false;      // MUST be false
+				controls.noZoom = false;
+				controls.noPan = false;
+
+				controls.staticMoving = false;  // false = con inerzia (più naturale)
+				controls.dynamicDampingFactor = 0.3;
+
+				// Distanza minima/massima (opzionale, regola in base al tuo modello)
+				controls.minDistance = 0.1;
 				controls.maxDistance = 100;
-				controls.enablePan = isPanEnabled;
+
+				controls.enableZoom = true;        
+				controls.zoomSpeed = 5.0;       
+
+				// Enable multitouch explicitally
+				controls.handleResize();       
 
 				controls.addEventListener('start', () => {
 					orbitControlsisDragging = true;
