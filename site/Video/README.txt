@@ -5,7 +5,7 @@ If you want to generate subtitles from a video:
 
 # 1. Install Whisper and ffmpeg
 	1- pip install openai-whisper ffmpeg-python
-	2- download https://github.com/GyanD/codexffmpeg/releases/download/8.0.1/ffmpeg-8.0.1-full_build.zip e copia la cartella bin in C:/ffmpeg/bin
+	2- download https://github.com/GyanD/codexffmpeg/releases/download/8.0.1/ffmpeg-8.0.1-full_build.zip and copy bin folder in C:/ffmpeg/bin
 	3- add ffmpeg to path: $env:PATH += ';C:\ffmpeg\bin'
 
 # 2. [OPTIONAL] Extract audio from video (Whisper accepts complete video anyway)

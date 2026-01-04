@@ -1,10 +1,10 @@
 # Jentile
 
-Lightweight web application for interactive 3D model viewing and exploration.
+Lightweight web application for interactive 3D models, videos, images, slideshow viewing and exploration.
 
 ## Overview
 
-Jentile is a simple, client-side 3D viewer built with Three.js, ideal for:
+Jentile is a simple, client-side viewer built with Three.js and other technologies, ideal for:
 
 - Virtual museum exhibitions: allowing users to interactively explore historical artifacts, furniture, or architectural elements (like [Lo Studiolo Malatestiano](https://www.architettoitaliano.com/bresciamalatestiana/lostudiolomalatestiano/jentile.html)) from any device.
 - Online product configurators: showcasing customizable items (e.g., furniture, accessories) with clickable parts that load variants seamlessly without page reloads.
@@ -15,7 +15,7 @@ It delivers a smooth, immersive experience with hover highlights, informative to
 
 ## Features
 
-- Support for local 3D models (GLB format) and videos (.mp4 with .vtt subs)
+- Support for local 3D models (GLB format), videos (.mp4 with .vtt subs) and pictures (.jpg, .jpeg, .gif, .png)
 - Interactive hover effects and clickable objects
 - Seamless in-page model switching (no full page reload)
 - Easy configuration via JSON files
@@ -49,7 +49,7 @@ python -m http.server 8000
 ## Configuration and usage
 
 - Edit `site/config.json` to change titles, and global settings.
-- Add or update entries in `site/menulist.json` to include new 3D models in the dropdown menu.
+- Add or update entries in `site/menulist.json` to include new objects in the dropdown menu.
 - Per-model settings (camera position, hotspots, tooltips, links) are defined in `site/config.json`
 - The main page `site/jentile.html` reads configuration and loads marker-associated content dynamically.
 
