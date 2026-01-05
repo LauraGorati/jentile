@@ -82,10 +82,10 @@ function deselectModel(){
 function openLink(link){
 	hideTooltip();
 	
-	showLoading();
-
 	let showBottomSheet = true;
 	if (!link.startsWith('http')){
+		showLoading();
+
 		pushUrl("file", link);
 		
 		if (link.endsWith('.glb')) {
@@ -392,13 +392,13 @@ function loadGLB(file){
 		
 				const controls = new THREE.TrackballControls(camera, renderer.domElement);
 				// Impostazioni essenziali per farlo muovere
-				controls.rotateSpeed = 10.0;     // velocità rotazione (regola a piacere)
+				controls.rotateSpeed = 5.0;     // velocità rotazione (regola a piacere)
 				controls.zoomSpeed = 1.2;
 				controls.panSpeed = 0.8;
 
 				controls.noRotate = false;      // MUST be false
 				controls.noZoom = false;
-				controls.noPan = false;
+				controls.noPan = !isPanEnabled;
 
 				controls.staticMoving = false;  // false = con inerzia (più naturale)
 				controls.dynamicDampingFactor = 0.3;

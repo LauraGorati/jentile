@@ -13,6 +13,12 @@
       "external": { "x": 0, "y": 0.47, "z": 0.9 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "cameraConstraints": {
+      "minPolarAngle" : 0,
+      "maxPolarAngle" : 90,
+      "minAzimuthAngle" : -90,
+      "maxAzimuthAngle" : 90
+    },   
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
@@ -43,6 +49,12 @@
       "external": { "x": 0, "y": 0.47, "z": 0.9 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "cameraConstraints": {
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
+    },   
     "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
     "position": { "x": 0.4, "y": 0.0, "z": 0 }, 
     "hotspots": [ 
@@ -55,6 +67,12 @@
       "external": { "x": 0, "y": 1.6, "z": 100 },   
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "cameraConstraints": {
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
+    },   
     "scale": { "x": 0.001, "y": 0.001, "z": 0.001}, 
     "position":   { "x": -100, "y": -20, "z": 50 },
     "hotspots": [ 
@@ -67,6 +85,12 @@
       "internal": { "x": 0, "y": 0, "z": 0 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
+    "cameraConstraints": {
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
+    },   
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
@@ -79,6 +103,12 @@
       "external": { "x": 0, "y": 0, "z": 0.1 },   
       "lookAt": { "x": 0, "y": 0, "z": -1 }
     },
+    "cameraConstraints": {
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
+    },   
     "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
     "position":   { "x": 0, "y": -0.05, "z": 0 },
     "hotspots": [ 
@@ -90,7 +120,13 @@
       "type": "internal", 
       "internal": { "x": 0, "y": 0, "z": 0.1 },   
       "lookAt": { "x": 0, "y": 0, "z": -1 }
-    },    
+    },
+    "cameraConstraints": {
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
+    },   
     "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
