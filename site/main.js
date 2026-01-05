@@ -50,8 +50,7 @@ function showTooltip(event, renderer){
 
 	const hitObject = findHitObject(mouse);
 
-	if (hitObject) {
-		
+	if (hitObject) {	
 		// tooltip management
 		if (hitObject.highlightModel){
 			display_style_tooltip = 'block';
@@ -72,6 +71,7 @@ function showTooltip(event, renderer){
 function hideTooltip(){
 	div_tooltip.style.display = 'none';
 }
+
 function deselectModel(){
 	mmLog("Object deselected");
 	highlightModel(selectedModel, false);
@@ -108,7 +108,6 @@ function openLink(link){
 	selectedModel = null;
 	
 	mmLog(`You clicked on ${link}`);
-	
 }
 
 function checkIfTouchMoved(event){
@@ -140,12 +139,12 @@ function disposeGLBResources(){
 }
 
 function applyPadding(element){
-	element.style.display = 'block';       // evita spazi indesiderati
-	element.style.margin = '0 auto';       // centra orizzontalmente
-	element.style.paddingTop = '56px';      // padding sopra e sotto
+	element.style.display = 'block';      
+	element.style.margin = '0 auto';       
+	element.style.paddingTop = '56px';     
 	element.style.paddingBottom = '56px';
-	element.style.width = '100%';          // occupa tutta la larghezza del contenitore
-	element.style.height = 'auto';         // mantiene proporzioni
+	element.style.width = '100%';          
+	element.style.height = 'auto';    
 }
 
 function loadImage(file){
@@ -188,7 +187,7 @@ function loadVideo(file, extension){
 	video.style.width = '100vw'; // 80% of screen width 
 	video.style.objectFit = 'contain'; // Maintain proportions
 
-	// Verifica esistenza sottotitoli con HEAD
+	// Check if subtitles exists
 	(async () => {
 	try {
 		const res = await fetch(subsPath, { method: 'HEAD' });
@@ -200,13 +199,13 @@ function loadVideo(file, extension){
 		track.label   = 'Italiano';
 		track.default = true;
 		video.appendChild(track);
-		mmLog(`Sottotitoli aggiunti: ${subsPath}`);
+		mmLog(`Added subs: ${subsPath}`);
 		} 
 		else {
-		console.warn('Sottotitoli non disponibili (status:', res.status, ')');
+		console.warn('Subs not available (status:', res.status, ')');
 		}
 	} catch (err) {
-		mmLog('Errore nel controllo sottotitoli:', err);
+		mmLog('Error loading subs:', err);
 	}
 	})();
 
@@ -218,14 +217,13 @@ function loadVideo(file, extension){
 
 }
 
-// Funzione che adatta *esattamente* al container
 function resizeToContainer() {
 	const container = document.getElementById('viewer-container');
 	const w = container.clientWidth;
 	const h = container.clientHeight;
-	if (w === 0 || h === 0) return; // evita divisioni per zero
+	if (w === 0 || h === 0) return; // prevents zero divisions!
 	if (renderer){
-		renderer.setSize(w, h, false);       // false => non toccare style width/height (li settiamo via CSS)
+		renderer.setSize(w, h, false);   
 		camera.aspect = w / h;
 		camera.updateProjectionMatrix();
 	}
@@ -391,24 +389,20 @@ function loadGLB(file){
 				}
 		
 				const controls = new THREE.TrackballControls(camera, renderer.domElement);
-				// Impostazioni essenziali per farlo muovere
-				controls.rotateSpeed = 5.0;     // velocità rotazione (regola a piacere)
-				controls.zoomSpeed = 1.2;
-				controls.panSpeed = 0.8;
-
-				controls.noRotate = false;      // MUST be false
+				
+				controls.noRotate = false;    
 				controls.noZoom = false;
 				controls.noPan = !isPanEnabled;
+				
+				controls.rotateSpeed = 5.0;    
+				controls.panSpeed = 0.8;
+				controls.zoomSpeed = 5.0;       
 
-				controls.staticMoving = false;  // false = con inerzia (più naturale)
+				controls.staticMoving = false;  // inertia
 				controls.dynamicDampingFactor = 0.3;
 
-				// Distanza minima/massima (opzionale, regola in base al tuo modello)
 				controls.minDistance = 0.1;
 				controls.maxDistance = 100;
-
-				controls.enableZoom = true;        
-				controls.zoomSpeed = 5.0;       
 
 				// Enable multitouch explicitally
 				controls.handleResize();       
@@ -453,8 +447,8 @@ window.addEventListener('popstate', (event) => {
 
 function pushUrl(parameter, value){
 	const newUrl = new URL(window.location);
-	// Rimuove tutti i parametri (?...)
-	newUrl.search = '';
+
+	newUrl.search = '';	// Removes all parameters from URL
 	newUrl.searchParams.set(parameter, value);
 	history.pushState({}, '', newUrl);
 }
@@ -482,21 +476,21 @@ function loadSlideShow(folderName){
 			const img = document.createElement('img'); 
 			img.src = `${folderName}/${image}`; 
 			
-			// Mantieni proporzioni e centra
+			// Mantain proportions and center content
 			img.style.display = 'block';
 			img.style.maxWidth = '100%';
-			img.style.maxHeight = '100%';   // limita l'altezza all'area della slide
-			img.style.objectFit = 'contain'; // evita deformazioni
-			img.style.margin = '0 auto';     // centra orizzontalmente
+			img.style.maxHeight = '100%';  
+			img.style.objectFit = 'contain'; 
+			img.style.margin = '0 auto'; // horizontal center
 
 			img.addEventListener('click', () => openFullscreenImage(img.src));
 			swiperSlide.appendChild(img); 
 			swiperWrapper.appendChild(swiperSlide); 
 		});
 		
-		swiperContainer.style.height = '60%';          // 60% del viewer che lo contiene
+		swiperContainer.style.height = '60%';       
 		swiperContainer.style.width = '100%';
-		swiperContainer.style.margin = '0 auto';       // centra orizzontalmente se il viewer è più largo
+		swiperContainer.style.margin = '0 auto';     
 
 		swiperContainer.appendChild(swiperWrapper);
 
@@ -602,7 +596,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         link.href = '#'; // # prevents navigation
                         link.textContent = item.desc;
 						
-                        // Intercetta il click
                         link.addEventListener('click', (e) => {
                             e.preventDefault(); // block default navigation
 
@@ -670,12 +663,11 @@ window.addEventListener('resize', () => {
     }
 });
 
-/* Helper: imposta translateY su pixel */
+
 function setTranslateY(px) {
   sheet.style.transform = `translateY(${px}px)`;
 }
 
-/* Calcola il translateY per stato collapsed */
 function collapsedTranslate() {
   // altezza reale del sheet
   const h = sheet.getBoundingClientRect().height;
@@ -688,7 +680,6 @@ function showSheet(show) {
     sheet.style.display = show ? 'block' : 'none';
 }
 
-
 function forceOpenSheet(){
 	sheet.classList.add('expanded');
     handle.setAttribute('aria-expanded', 'true');
@@ -699,7 +690,6 @@ function forceCloseSheet(){
     handle.setAttribute('aria-expanded', 'false');
 }
 
-/* Toggle (click/tap sull'handle) */
 function toggleSheet() {
   const expanded = sheet.classList.toggle('expanded');
   handle.setAttribute('aria-expanded', String(expanded));
@@ -710,7 +700,7 @@ handle.addEventListener('click', toggleSheet);
 /* Drag: mouse/touch pointer events */
 function onPointerDown(e) {
 	
-  // Blocca scroll/gesture del body o degli elementi sotto
+  // Block scroll and gestures on body
   e.stopPropagation();
   if (e.cancelable) e.preventDefault()
 
@@ -728,7 +718,7 @@ function onPointerDown(e) {
 
 function onPointerMove(e) {
 	
-  // Blocca scroll/gesture del body o degli elementi sotto
+  // Block scroll and gestures on body
   e.stopPropagation();
   if (e.cancelable) e.preventDefault()
 
@@ -743,7 +733,7 @@ function onPointerMove(e) {
 function onPointerUp() {
   sheet.classList.remove('dragging');
 
-  const threshold = collapsedTranslate() * 0.5; // soglia metà
+  const threshold = collapsedTranslate() * 0.5; 
   if (currentTranslate !== null) {
     if (currentTranslate < threshold) {
     	forceOpenSheet();
@@ -751,7 +741,7 @@ function onPointerUp() {
     	forceCloseSheet();
     }
   }
-  // ripristina trasform inline per usare la classe
+  
   sheet.style.transform = '';
   window.removeEventListener('pointermove', onPointerMove);
   window.removeEventListener('pointerup', onPointerUp);
@@ -759,6 +749,6 @@ function onPointerUp() {
   window.removeEventListener('touchend', onPointerUp);
 }
 
-/* Attacca il drag all'handle (e, se vuoi, al bordo del sheet) */
+
 handle.addEventListener('pointerdown', onPointerDown);
 handle.addEventListener('touchstart', onPointerDown, { passive: true });
