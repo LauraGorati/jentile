@@ -52,9 +52,17 @@ export function reloadDescription(fileName){
 		})
 		.then(text => {
 			const descriptionContainer = document.getElementById('description-container');
-			descriptionContainer.textContent = text;
 			descriptionContainer.style.display = 'block'; // make sure is visible
-			descriptionContainer.style.whiteSpace = 'pre-wrap'; // follow \n e \r\n
+			
+			 // Split text by lines, make first line bold and preserve remaining line breaks with <br>
+            const lines = text.split(/\r?\n/);
+            const firstLine = lines.shift() || '';
+            const rest = lines.join('\n');
+			const restHtml = rest ? '<br><span class="desc-rest">' + rest + '</span>' : '';
+            const html = `<span class="desc-first-line">${firstLine}</span>${restHtml}`;
+
+            descriptionContainer.innerHTML = html;
+			descriptionContainer.style.whiteSpace = 'normal'; 
 			descriptionContainer.style.wordBreak = 'break-word'; 
 
 		})

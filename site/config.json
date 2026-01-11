@@ -1,49 +1,48 @@
 {
   "html":{
-    "pageTitle": "Lo Studiolo Malatestiano",
-    "headerTitle": "Lo Studiolo Malatestiano"
+    "pageTitle": "lo studiolo malatestiano",
+    "headerTitle": "lo studiolo malatestiano"
   },
   "viewer":{
-    "ambient" : "white"
+    "ambient" : "rgb(255, 244, 242)"
   },
-  "mattone1.glb": {
-    "name" : "MATTONE",
+  "3d_cappellaPandolfo.glb": {
     "cameraPosition": {
       "type": "external", 
-      "external": { "x": 0, "y": 0.47, "z": 0.9 },
-      "lookAt": { "x": 0, "y": 2, "z": -5 }
+      "external": { "x": 0, "y": 1.6, "z": 20 },   
+      "lookAt": { "x": 0, "y": 0, "z": -5 }
     },
     "cameraConstraints": {
-      "minPolarAngle" : 0,
-      "maxPolarAngle" : 90,
-      "minAzimuthAngle" : -90,
-      "maxAzimuthAngle" : 90
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
     },   
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
       { 
-        "reference": "divano.glb", 
-        "name": "DIVANO PICCOLO",
-        "scale": { "x": 0.001, "y": 0.001, "z": 0.001}, 
-        "position": { "x": 0.0, "y": 0.0, "z": 0 }, 
+        "reference": "porta1.glb", 
+        "name": "PORTA 1",
+        "scale": { "x": 1, "y": 1, "z": 1}, 
+        "position":   { "x": 0, "y": 0, "z": 0 },
         "title": "Titolo per la hoverbox",
-        "text": "Questo è il divano piccolo che ti porta su google", 
-        "link": "https://google.com/" 
+        "text": "Clicca per esplorare gli affreschi e gli spazi interni", 
+        "link": "porta1.glb" 
       },
-      { 
-        "reference": "cuboprova1.glb", 
-        "name": "CUBO",
-        "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-        "position": { "x": 0.4, "y": 0.0, "z": 0 }, 
+     { 
+        "reference": "porta2.glb", 
+        "name": "PORTA 2",
+        "scale": { "x": 1, "y": 1, "z": 1}, 
+        "position":   { "x": 0, "y": 0, "z": 0 },
         "title": "Titolo per la hoverbox",
-        "text": "Questo è il cubo grande che ti porta su di lui", 
-        "link": "cuboprova1.glb" 
-      } 
-    ] 
+        "text": "Clicca per esplorare gli affreschi e gli spazi interni", 
+        "link": "porta2.glb" 
+      }
+    ]  
   },
-  "divano.glb": {
-    "name" : "DIVANO",
+  "porta1.glb": {
+    "name" : "Porta 1",
     "cameraPosition": {
       "type": "position", 
       "external": { "x": 0, "y": 0.47, "z": 0.9 },
@@ -55,16 +54,17 @@
       "minAzimuthAngle" : -45,
       "maxAzimuthAngle" : 45
     },   
-    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-    "position": { "x": 0.4, "y": 0.0, "z": 0 }, 
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position": { "x": 0, "y": 0, "z": 0 }, 
     "hotspots": [ 
       
     ]  
   },
-  "cappella.glb": {
+  "porta2.glb": {
+    "name" : "Porta 2",
     "cameraPosition": {
-      "type": "external", 
-      "external": { "x": 0, "y": 1.6, "z": 100 },   
+      "type": "position", 
+      "external": { "x": 0, "y": 0.47, "z": 0.9 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
     "cameraConstraints": {
@@ -73,11 +73,11 @@
       "minAzimuthAngle" : -45,
       "maxAzimuthAngle" : 45
     },   
-    "scale": { "x": 0.001, "y": 0.001, "z": 0.001}, 
-    "position":   { "x": -100, "y": -20, "z": 50 },
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position": { "x": 0, "y": 0, "z": 0 }, 
     "hotspots": [ 
       
-    ]   
+    ]  
   },
   "internoChiesa.glb": {
     "cameraPosition": {
@@ -97,7 +97,25 @@
       
     ]   
   },
-  "Gentile_Lunetta_N_O.glb": {
+  "gentile_lunettaNO.glb": {
+    "cameraPosition": {
+      "type": "external", 
+      "external": { "x": 0, "y": 0, "z": 0.1 },   
+      "lookAt":   { "x": 0, "y": -0.05, "z": -0.2 }
+    },
+    "cameraConstraints": {
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
+    },   
+    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
+    "position":   { "x": 0, "y": -0.05, "z": -0.2 },
+    "hotspots": [ 
+      
+    ]   
+  },
+  "gentile_lunettaSO.glb": {
     "cameraPosition": {
       "type": "external", 
       "external": { "x": 0, "y": 0, "z": 0.1 },   
@@ -110,7 +128,43 @@
       "maxAzimuthAngle" : 45
     },   
     "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-    "position":   { "x": 0, "y": -0.05, "z": 0 },
+    "position":   { "x": 0, "y": -0.05, "z": -0.2 },
+    "hotspots": [ 
+      
+    ]   
+  },
+  "gentile_profeta.glb": {
+    "cameraPosition": {
+      "type": "external", 
+      "external": { "x": 0, "y": 0, "z": 0.1 },   
+      "lookAt": { "x": 0, "y": 0, "z": -1 }
+    },
+    "cameraConstraints": {
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
+    },   
+    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
+    "position":   { "x": 0, "y": -0.05, "z": -0.2 },
+    "hotspots": [ 
+      
+    ]   
+  },
+  "gentile_aureola_cristo.glb": {
+    "cameraPosition": {
+      "type": "external", 
+      "external": { "x": 0, "y": 0, "z": 0.1 },   
+      "lookAt": { "x": 0, "y": 0, "z": -1 }
+    },
+    "cameraConstraints": {
+      "minPolarAngle" : -45,
+      "maxPolarAngle" : 45,
+      "minAzimuthAngle" : -45,
+      "maxAzimuthAngle" : 45
+    },   
+    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
+    "position":   { "x": 0, "y": -0.05, "z": -0.2 },
     "hotspots": [ 
       
     ]   
@@ -128,7 +182,7 @@
       "maxAzimuthAngle" : 45
     },   
     "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-    "position":   { "x": 0, "y": 0, "z": 0 },
+    "position":   { "x": 0, "y": 0, "z": -0.2 },
     "hotspots": [ 
       
     ]   

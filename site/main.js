@@ -240,10 +240,18 @@ function loadGLB(file){
 
 			// Create scene, camera, renderer
 			scene = new THREE.Scene();
-			scene.background = new THREE.Color(0xffffff);
+			// obtain color from CSS and remove alpha if is 'rgba(...)'
+			const cssBg = getComputedStyle(document.documentElement)
+								.getPropertyValue('--bg-color').trim();
+			const bgForThree = cssBg.startsWith('rgba')
+				? cssBg.replace(/rgba\((\s*\d+\s*,\s*\d+\s*,\s*\d+),\s*[\d.]+\)/, 'rgb($1)')
+				: cssBg;
+			scene.background = new THREE.Color(bgForThree);
+
 
 			renderer = new THREE.WebGLRenderer();
-			
+			renderer.setClearColor(bgForThree, 1);
+
 			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // qualità/performanza
 			renderer.domElement.style.width = '100%';
 			renderer.domElement.style.height = '100%';
@@ -382,30 +390,23 @@ function loadGLB(file){
 					const pos = config[configKey].cameraPosition[camType];
 					if (pos) {
 						camera.position.set(pos.x, pos.y, pos.z);
+
 						if (config[configKey].lookAt) {
-							camera.lookAt(config[configKey].lookAt.x, config[configKey].lookAt.y, config[configKey].lookAt.z);
+							const lookAt = new THREE.Vector3(
+								config[configKey].lookAt.x,
+								config[configKey].lookAt.y,
+								config[configKey].lookAt.z
+							);
+							camera.lookAt(lookAt);
 						}
 					}
 				}
-		
-				const controls = new THREE.TrackballControls(camera, renderer.domElement);
-				
-				controls.noRotate = false;    
-				controls.noZoom = false;
-				controls.noPan = !isPanEnabled;
-				
-				controls.rotateSpeed = 5.0;    
-				controls.panSpeed = 0.8;
-				controls.zoomSpeed = 5.0;       
-
-				controls.staticMoving = false;  // inertia
-				controls.dynamicDampingFactor = 0.3;
-
-				controls.minDistance = 0.1;
-				controls.maxDistance = 100;
-
-				// Enable multitouch explicitally
-				controls.handleResize();       
+				const controls = new THREE.OrbitControls(camera, renderer.domElement);
+				controls.enableDamping = true;
+				controls.dampingFactor = 0.25;
+				controls.screenSpacePanning = false;
+				controls.minDistance = 10;
+				controls.maxDistance = 40;    
 
 				controls.addEventListener('start', () => {
 					orbitControlsisDragging = true;

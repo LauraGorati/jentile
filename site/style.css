@@ -3,10 +3,34 @@
 :root {
   --sheet-collapsed-h: 56px;                
   --sheet-expanded-h: min(60vh, 480px);  
-  --sheet-bg: rgba(0,0,0,0.45);
+  --sheet-bg: rgba(245,242,236,0.9); /*bottom sheet background*/
   --sheet-blur: 8px;
   --sheet-radius: 16px;
   --sheet-transition: 280ms cubic-bezier(.2,.8,.2,1);
+
+   /* centralized colors */
+  --bg-color: rgba(250,249,247,1); /*leave in rgba because is read by renderer in js*/
+  --header-text-color: #C1121F;
+  --elements-color: #C1121F;
+  --text-color: #1F3A3D;
+
+  /* fonts */
+  --base-font: "Work Sans", sans-serif;
+  --header-font: "Gabarito", sans-serif;
+}
+
+.work-sans {
+  font-family: "Work Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.gabarito {
+  font-family: "Gabarito", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 html, body {
@@ -14,9 +38,9 @@ html, body {
     margin: 0;
 }
 body {
-    background: #FFF; 
+    background: var(--bg-color); 
     overflow: hidden;  
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-family: var(--base-font);
 }
 
 header {
@@ -28,13 +52,7 @@ header {
     gap: 12px;
     padding: 0 16px;
     box-sizing: border-box;
-
-    /* Traslucency + blur */
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(6px);         /* for modern browsers*/
-    -webkit-backdrop-filter: blur(6px); /* Safari/iOS */
-
-    color: #fff;
+    color: var(--header-text-color);
     z-index: 1000;
 }
 
@@ -52,6 +70,7 @@ header h1 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: var(--header-font);
 }
 
 .swiper-container {
@@ -61,7 +80,7 @@ header h1 {
 .swiper-slide {
     text-align: center;
     font-size: 18px;
-    background: #fff;
+    background: var(--bg-color);
     display: -webkit-box;
     display: -ms-flexbox;
     display: -webkit-flex;
@@ -116,31 +135,32 @@ header h1 {
     cursor: pointer;
     z-index: 100;
 }
-.menu-btn span {
-    display: block;
-    height: 5px;
-    width: 100%;
-    background: #fff;
-    margin: 5px 0;
-    border-radius: 2px;
+
+.material-symbols-outlined {
+    color: var(--elements-color);
 }
+
 .dropdown-menu {
     position: absolute;
     top: 55px;
     right: 20px;
-    background: #fff;
-    border: 1px solid #ccc;
     min-width: 180px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    background: var(--sheet-bg);
+    backdrop-filter: blur(var(--sheet-blur));
+    -webkit-backdrop-filter: blur(var(--sheet-blur));
+    /*border: 1px solid var(--elements-color);*/
+    /*box-shadow: 0.3px 0.3px 1px var(--elements-color);*/
     z-index: 101;
     padding: 10px 0;
+    border-radius: var(--sheet-radius);
 }
 .dropdown-menu a {
     display: block;
     padding: 8px 16px;
-    color: #333;
+    color: var(--text-color);
     text-decoration: none;
-    transition: background 0.2s;
+    font-weight: 500;
+    transition: 0.2s;
 }
 .dropdown-menu a:hover {
     background: #f1f1f1;
@@ -148,15 +168,14 @@ header h1 {
 
 #model-tooltip {
     position: absolute;
-    background: rgba(0, 0, 0, 0.85);
-    color: white;
+    background: var(--sheet-bg);
+    color: var(--text-color);
     padding: 12px 16px;
-    border-radius: 8px;
+    border-radius: var(--sheet-radius);
     pointer-events: none;     /* tooltip doesn't block events */
     display: none;
     z-index: 1000;
     max-width: 300px;
-    font-family: Arial, sans-serif;
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
@@ -180,12 +199,11 @@ header h1 {
   transition: transform var(--sheet-transition);
   will-change: transform;
   background: var(--sheet-bg);
-  color: #fff;
+  color: var(--elements-color);
   backdrop-filter: blur(var(--sheet-blur));
   -webkit-backdrop-filter: blur(var(--sheet-blur));
   border-top-left-radius: var(--sheet-radius);
   border-top-right-radius: var(--sheet-radius);
-  box-shadow: 0 -8px 24px rgba(0,0,0,0.35);
   z-index: 1000;
   pointer-events: auto;
 }
@@ -216,13 +234,11 @@ header h1 {
 }
 
 #sheet-handle .grabber {
-  width: 36px; height: 4px; border-radius: 999px;
-  background: rgba(255,255,255,0.6);
-}
-
-#sheet-handle .handle-label {
-  font: 500 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  opacity: .9;
+  max-width: 358px;
+  width: 35%; 
+  height: 4px; 
+  border-radius: 999px;
+  background: var(--elements-color)
 }
 
 #sheet-content {
@@ -234,14 +250,12 @@ header h1 {
 
 #sheet-content > #error-container,
 #sheet-content > #description-container {
-  width: 100%;
+  max-width: 1024px;
   box-sizing: border-box;
-  border-radius: 10px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  margin: 0 auto 12px;     /* centra orizzontalmente */
   padding: 12px 16px;
   margin-bottom: 12px;
-  max-height: 30vh;      
+  max-height: 80vh;      
   overflow: auto;
 }
 
@@ -251,9 +265,20 @@ header h1 {
 }
 
 #description-container {
-    color: white;                    /* text color */
-    background-color: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--text-color);                    /* text color */
+    /*background-color: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255,255,255,0.2);*/
+}
+
+.desc-first-line {
+  display: block; 
+  font-size: x-large;     
+  font-weight: 600;  
+}
+
+.desc-rest {
+  display: block;      
+  line-height: 1.5em;
 }
 
 #error-container {
@@ -272,7 +297,6 @@ header h1 {
     inset: 0;        
     z-index: 1;     
     object-fit: contain;
-    background: #fff;
 }
 
 #viewer-container img,
@@ -311,7 +335,6 @@ header h1 {
 
 .loading-text {
     color: #fff;
-    font-family: system-ui, Arial, sans-serif;
     font-size: 14px;
     letter-spacing: 0.3px;
 }

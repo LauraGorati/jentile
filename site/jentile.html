@@ -6,14 +6,20 @@
     <title id="page-title">Loading...</title> 
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=menu" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="work-sans">
    
     <header>
-        <h1 id="header-title">Loading...</h1>
-        <button id="menu-btn" class="menu-btn" aria-label="Open menu">
-        <span></span><span></span><span></span>
+        <h1 id="header-title" class="gabarito">Loading...</h1>
+        <button id="menu-btn" class="menu-btn">
+            <span class="material-symbols-outlined" aria-label="Open menu">menu</span>
         </button>
+        <span></span><span></span><span></span>
         <div id="dropdown-menu" class="dropdown-menu" style="display:none;"></div>
     </header>
 
@@ -29,7 +35,6 @@
     <div id="bottom-sheet" role="dialog" aria-label="Informazioni" aria-modal="false">
         <button id="sheet-handle" class="sheet-handle" aria-expanded="false" aria-controls="sheet-content">
             <span class="grabber" aria-hidden="true"></span>
-            <span class="handle-label">Info</span>
         </button>
         <div id="sheet-content" class="sheet-content">
             <div id="error-container"></div>
@@ -40,24 +45,10 @@
     <!-- Script Three.js at thi right version -->
   	<script src="https://unpkg.com/three@0.143.0/build/three.min.js"></script>
 	<script src="https://unpkg.com/three@0.143.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://unpkg.com/three@0.143.0/examples/js/controls/TrackballControls.js"></script>    
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+	<script src="https://unpkg.com/three@0.143.0/examples/js/controls/OrbitControls.js"></script>    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script type="module" src="main.js"></script>
 
-	<div id="model-tooltip" style="
-			position: absolute;
-			background: rgba(0,0,0,0.8);
-			color: white;
-			padding: 10px 15px;
-			border-radius: 8px;
-			font-family: Arial, sans-serif;
-			font-size: 14px;
-			pointer-events: none; /* important: not blocking mouse events! */
-			display: none;
-			z-index: 100;
-			max-width: 300px;
-			box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-		">
+	<div id="model-tooltip">
 	</div>
 </body>
 </html>
