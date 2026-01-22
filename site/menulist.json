@@ -4,6 +4,5 @@
   { "file": "gentile_lunettaNO.glb", "desc": "Affresco Gentile: lunetta nord-ovest" },
   { "file": "gentile_lunettaSO.glb", "desc": "Affresco Gentile: lunetta sud-ovest"},
   { "file": "gentile_profeta.glb", "desc": "Affresco Gentile: presunto profeta"},
-  { "file": "gentile_aureola_cristo.glb", "desc": "Affresco Gentile: frammento aureola"},
-  { "folder": "Slideshow", "desc": "Slideshow di immagini" }
+  { "file": "gentile_aureola_cristo.glb", "desc": "Affresco Gentile: frammento aureola"}
 ]
