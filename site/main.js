@@ -550,6 +550,9 @@ function mainLogic(){
 			openLink(link);
 		}
 	}
+	
+	reloadDescription(`3DObjects/3d_cappellaPandolfo.txt`);
+
 }
 
 // Main

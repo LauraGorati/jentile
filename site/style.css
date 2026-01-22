@@ -10,8 +10,8 @@
 
    /* centralized colors */
   --bg-color: rgba(250,249,247,1); /*leave in rgba because is read by renderer in js*/
-  --header-text-color: #C1121F;
-  --elements-color: #C1121F;
+  --header-text-color: #e34234;
+  --elements-color: #e34234;
   --text-color: #1F3A3D;
 
   /* fonts */
@@ -41,6 +41,11 @@ body {
     background: var(--bg-color); 
     overflow: hidden;  
     font-family: var(--base-font);
+    background-image: url('vista1.png');
+    background-size: 130%;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 }
 
 header {
