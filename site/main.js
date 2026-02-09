@@ -1,5 +1,5 @@
 import { mmLog, mmError, getMouseCoordOnCanvas, getUrlParameter} from './utils.js';
-import { showLoading, hideLoading, displayErrorMessage, addToViewerContainer, reloadDescription} from './document.js'
+import { showLoading, hideLoading, displayErrorMessage, addToViewerContainer, reloadDescription, updateProgress} from './document.js'
 import { highlightModel, makeSelectable, loadModelPropertiesFromJson } from './models.js';
 
 function openFullscreenImage(src) 
@@ -211,10 +211,28 @@ function loadVideo(file, extension){
 
 	addToViewerContainer(video);
 
+	// Hide header when video plays, show when paused
+	video.addEventListener('play', hideHeader);
+	video.addEventListener('pause', showHeader);
+
 	hideLoading();
 	reloadDescription(videoPath);
 	forceCloseSheet();
 
+}
+
+function hideHeader() {
+	const header = document.querySelector('header');
+	if (header) {
+		header.classList.add('hidden-header');
+	}
+}
+
+function showHeader() {
+	const header = document.querySelector('header');
+	if (header) {
+		header.classList.remove('hidden-header');
+	}
 }
 
 function resizeToContainer() {
@@ -347,66 +365,110 @@ function loadGLB(file){
 
 			addToViewerContainer(renderer.domElement);
 		
-			// Ambient lightning
-			const ambientLight = new THREE.AmbientLight(config["viewer"].ambient, 1);
-			scene.add(ambientLight);
-
+			// Ambient lightning from config.json
+			if (config["lights"] && config["lights"].ambient && config["lights"].ambient.intensity > 0) {
+				const amb = config["lights"].ambient;
+				const ambientLight = new THREE.AmbientLight(amb.color, amb.intensity);
+				scene.add(ambientLight);
+			}
+			
+			//directional lights from config.json
+			if (config["lights"] && config["lights"].pointLights) {
+				for (const key in config["lights"].pointLights) {
+					const pt = config["lights"].pointLights[key];
+					if (pt.intensity > 0) {			
+						const pointLight = new THREE.PointLight(pt.color, pt.intensity);
+						pointLight.position.set(pt.position.x, pt.position.y, pt.position.z);
+						scene.add(pointLight);
+					}
+				}
+			}
+			
+			//sun light
+			if (config["lights"] && config["lights"].sun && config["lights"].sun.intensity > 0) {
+				const sun = new THREE.PointLight(config["lights"].sun.color, config["lights"].sun.intensity);
+				sun.position.set(config["lights"].sun.position.x, config["lights"].sun.position.y, config["lights"].sun.position.z);
+				scene.add(sun);
+			}
 			// load GLB
 			const loader = new THREE.GLTFLoader();
-			loader.load(glbPath, function (gltf) { //load model from file
-				const configKey = glbPath.split('/').pop();
+			loader.load(glbPath, 
+				function (gltf) { //load model from file
+					const configKey = glbPath.split('/').pop();
 
-				const model = gltf.scene;
-				loadModelPropertiesFromJson(model, config[configKey])
-		
-				model.highlightModel = false; //root object not highlightable
-				scene.add(model);
-					
-				// load hotpots models, if they exists
-				if (config[configKey] && config[configKey].hotspots) {
-					config[configKey].hotspots.forEach(h => {
+					const model = gltf.scene;
+					loadModelPropertiesFromJson(model, config[configKey])
+			
+					model.highlightModel = false; //root object not highlightable
+					scene.add(model);
 						
-						const loader2 = new THREE.GLTFLoader(); 
-						loader2.load(`3Dobjects/${h.reference}`, function (gltf_temp) {
-							const secondary_model = gltf_temp.scene;
-							loadModelPropertiesFromJson(secondary_model, h)
-
-							makeSelectable(h, secondary_model); 
-							scene.add(secondary_model);
+					// load hotpots models, if they exists
+					if (config[configKey] && config[configKey].hotspots) {
+						config[configKey].hotspots.forEach(h => {
 							
-							}, undefined, function (error) {
-								console.error("Error loading model", error);
-							});
+							const loader2 = new THREE.GLTFLoader(); 
+							loader2.load(`3Dobjects/${h.reference}`, 
+								function (gltf_temp) {
+									const secondary_model = gltf_temp.scene;
+									loadModelPropertiesFromJson(secondary_model, h)
+
+									makeSelectable(h, secondary_model); 
+									scene.add(secondary_model);
+									
+								}, 
+								function (progressEvent) {
+									if (progressEvent.lengthComputable) {
+										const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
+										updateProgress(percentComplete);
+									}
+								},
+								function (error) {
+									console.error("Error loading model", error);
+								}
+							);
 						});								
 					}
 				
-				//load camera position from config.json
-				let isPanEnabled = true;
-				if (config[configKey] && config[configKey].cameraPosition) {
-					const camType = config[configKey].cameraPosition.type;
-					if (camType === "internal") {
-						isPanEnabled = false;
-					}
-					const pos = config[configKey].cameraPosition[camType];
-					if (pos) {
-						camera.position.set(pos.x, pos.y, pos.z);
+					//load camera position from config.json
+					let isPanEnabled = true;
+					if (config[configKey] && config[configKey].cameraPosition) {
+						const camType = config[configKey].cameraPosition.type;
+						if (camType === "internal") {
+							isPanEnabled = false;
+						}
+						const pos = config[configKey].cameraPosition[camType];
+						if (pos) {
+							camera.position.set(pos.x, pos.y, pos.z);
 
-						if (config[configKey].lookAt) {
-							const lookAt = new THREE.Vector3(
-								config[configKey].lookAt.x,
-								config[configKey].lookAt.y,
-								config[configKey].lookAt.z
-							);
-							camera.lookAt(lookAt);
+							if (config[configKey].lookAt) {
+								const lookAt = new THREE.Vector3(
+									config[configKey].lookAt.x,
+									config[configKey].lookAt.y,
+									config[configKey].lookAt.z
+								);
+								camera.lookAt(lookAt);
+							}
 						}
 					}
-				}
-				const controls = new THREE.OrbitControls(camera, renderer.domElement);
-				controls.enableDamping = true;
-				controls.dampingFactor = 0.25;
-				controls.screenSpacePanning = false;
-				controls.minDistance = 10;
-				controls.maxDistance = 40;    
+					const controls = new THREE.OrbitControls(camera, renderer.domElement);
+					controls.enablePan = isPanEnabled; // allow/deny panning per config
+					controls.enableZoom = true;
+					controls.enableDamping = true;
+					controls.dampingFactor = 0.25;
+					controls.screenSpacePanning = true;
+					controls.minDistance = 0.3;
+					controls.maxDistance = 20;  
+					
+					// Limit left/right to ±45°, or custom values from config
+					controls.minAzimuthAngle = -Math.PI / 4; // -45°
+					controls.maxAzimuthAngle = Math.PI / 4;  // +45°
+				
+				// Disable up/down movement: lock polar angle to current camera polar
+				// compute current polar angle relative to controls.target
+				const offset = new THREE.Vector3().copy(camera.position).sub(controls.target);
+				const spherical = new THREE.Spherical().setFromVector3(offset);
+				controls.minPolarAngle = spherical.phi;
+				controls.maxPolarAngle = spherical.phi;
 
 				controls.addEventListener('start', () => {
 					orbitControlsisDragging = true;
@@ -428,7 +490,14 @@ function loadGLB(file){
 
 				hideLoading();
 
-			}, undefined, function (error) {
+			}, 
+			function (progressEvent) {
+				if (progressEvent.lengthComputable) {
+					const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
+					updateProgress(percentComplete);
+				}
+			}, 
+			function (error) {
 				console.error("Error loading GLB:", error);
 			});
 		})

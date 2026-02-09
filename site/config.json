@@ -3,21 +3,35 @@
     "pageTitle": "lo studiolo malatestiano",
     "headerTitle": "lo studiolo malatestiano"
   },
-  "viewer":{
-    "ambient" : "rgb(255, 244, 242)"
-  },
+  "lights":{
+    "ambient" : {
+      "color": "rgb(255, 244, 229)",
+      "intensity": 1
+    },
+    "sun" : {
+      "color": "rgb(255, 255, 255)",
+      "position": { "x": 0, "y": 50, "z": 50 },
+      "intensity": 0
+    },
+    "pointLights": {
+        "directional1" : {
+            "color": "rgb(255, 244, 229)",
+            "position": { "x": -5, "y": 5, "z": 0.2 },
+            "intensity": 0.5
+        },
+        "directional2" : {
+            "color": "rgb(255, 244, 229)",
+            "position": { "x": 5, "y": 5, "z": 0.2 },
+            "intensity": 0.5
+        } 
+      }
+  },  
   "3d_cappellaPandolfo.glb": {
     "cameraPosition": {
       "type": "external", 
       "external": { "x": 0, "y": 1.6, "z": 20 },   
       "lookAt": { "x": 0, "y": 0, "z": -5 }
-    },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
+    },  
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
@@ -47,13 +61,7 @@
       "type": "position", 
       "external": { "x": 0, "y": 0.47, "z": 0.9 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
-    },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
+    },  
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position": { "x": 0, "y": 0, "z": 0 }, 
     "hotspots": [ 
@@ -66,13 +74,7 @@
       "type": "position", 
       "external": { "x": 0, "y": 0.47, "z": 0.9 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
-    },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
+    }, 
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position": { "x": 0, "y": 0, "z": 0 }, 
     "hotspots": [ 
@@ -85,12 +87,6 @@
       "internal": { "x": 0, "y": 0, "z": 0 },
       "lookAt": { "x": 0, "y": 2, "z": -5 }
     },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
@@ -100,17 +96,11 @@
   "gentile_lunettaNO.glb": {
     "cameraPosition": {
       "type": "external", 
-      "external": { "x": 0, "y": 0, "z": 0.1 },   
-      "lookAt":   { "x": 0, "y": -0.05, "z": -0.2 }
-    },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
-    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-    "position":   { "x": 0, "y": -0.05, "z": -0.2 },
+      "external": { "x": 0, "y": 0, "z": 1 },   
+      "lookAt": { "x": 0, "y": 0, "z": -1 }
+    }, 
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
       
     ]   
@@ -118,17 +108,11 @@
   "gentile_lunettaSO.glb": {
     "cameraPosition": {
       "type": "external", 
-      "external": { "x": 0, "y": 0, "z": 0.1 },   
+      "external": { "x": 0, "y": 0, "z": 1 },   
       "lookAt": { "x": 0, "y": 0, "z": -1 }
-    },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
-    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-    "position":   { "x": 0, "y": -0.05, "z": -0.2 },
+    },  
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
       
     ]   
@@ -136,17 +120,11 @@
   "gentile_profeta.glb": {
     "cameraPosition": {
       "type": "external", 
-      "external": { "x": 0, "y": 0, "z": 0.1 },   
+      "external": { "x": 0, "y": 0, "z": 1 },   
       "lookAt": { "x": 0, "y": 0, "z": -1 }
-    },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
-    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-    "position":   { "x": 0, "y": -0.05, "z": -0.2 },
+    }, 
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
       
     ]   
@@ -154,37 +132,13 @@
   "gentile_aureola_cristo.glb": {
     "cameraPosition": {
       "type": "external", 
-      "external": { "x": 0, "y": 0, "z": 0.1 },   
+      "external": { "x": 0, "y": 0, "z": 1 },   
       "lookAt": { "x": 0, "y": 0, "z": -1 }
-    },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
-    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-    "position":   { "x": 0, "y": -0.05, "z": -0.2 },
+    }, 
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
       
     ]   
-  },
-  "cuboprova1.glb": {
-    "cameraPosition": {
-      "type": "internal", 
-      "internal": { "x": 0, "y": 0, "z": 0.1 },   
-      "lookAt": { "x": 0, "y": 0, "z": -1 }
-    },
-    "cameraConstraints": {
-      "minPolarAngle" : -45,
-      "maxPolarAngle" : 45,
-      "minAzimuthAngle" : -45,
-      "maxAzimuthAngle" : 45
-    },   
-    "scale": { "x": 0.1, "y": 0.1, "z": 0.1}, 
-    "position":   { "x": 0, "y": 0, "z": -0.2 },
-    "hotspots": [ 
-      
-    ]   
-  }    
+  }  
 }

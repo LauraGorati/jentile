@@ -2,11 +2,32 @@
 import {mmError} from './utils.js';
 
 export function showLoading() {
+
   document.getElementById('loading-overlay').hidden = false;
 }
 
 export function hideLoading() {
   document.getElementById('loading-overlay').hidden = true;
+  resetProgress();
+}
+
+export function updateProgress(percentage) {
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  if (progressBar && progressText) {
+    const percent = Math.round(percentage);
+    progressBar.style.width = percent + '%';
+    progressText.textContent = percent + '%';
+  }
+}
+
+function resetProgress() {
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  if (progressBar && progressText) {
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+  }
 }
 
 export function addToViewerContainer(element){
