@@ -26,21 +26,18 @@
         } 
       }
   },  
-  "3d_cappella_interno.glb": {
+  "INTERNAL_3d_cappellaPandolfo.glb": {
     "cameraPosition": {
       "type": "internal", 
       "position": { "x": 0, "y": 0, "z": 0.1 }
     },  
     "scale": { "x": 2, "y": 2, "z": 2}, 
-    "position":   { "x": 0, "y": 0, "z": 0 },
-    "hotspots": [ 
-     
-    ]  
-  },
+    "position":   { "x": 1, "y": 8, "z": 0 }
+ },
   "3d_cappellaPandolfo.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 1.6, "z": 20 } 
+      "position": { "x": 0, "y": 1.6, "z": 20 }
     },  
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
@@ -52,7 +49,7 @@
         "position":   { "x": 0, "y": 0, "z": 0 },
         "title": "",
         "text": "Clicca per esplorare gli affreschi e gli spazi interni", 
-        "link": "3d_cappella_interno.glb" 
+        "link": "3d_cappellaPandolfo.glb" 
       },
       { 
         "reference": "porta2.glb", 
@@ -61,15 +58,27 @@
         "position":   { "x": 0, "y": 0, "z": 0 },
         "title": "",
         "text": "Clicca per esplorare gli affreschi e gli spazi interni", 
-        "link": "3d_cappella_interno.glb" 
+        "link": "3d_cappellaPandolfo.glb" 
       }
     ]  
   },
-  "porte.glb": {
-    "name" : "Porte",
+  "porta1.glb": {
+    "name" : "Porta 1",
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0.47, "z": 0.9 }
+      "position": { "x": 0, "y": 0, "z": 0 }
+    },  
+    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "position": { "x": 0, "y": 0, "z": 0 }, 
+    "hotspots": [ 
+      
+    ]  
+  },
+  "porta2.glb": {
+    "name" : "Porta 2",
+    "cameraPosition": {
+      "type": "external", 
+      "position": { "x": 0, "y": 0, "z": 0 }
     },  
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position": { "x": 0, "y": 0, "z": 0 }, 

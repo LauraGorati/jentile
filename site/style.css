@@ -5,9 +5,11 @@
   --sheet-blur: 8px;
   --sheet-radius: 16px;
   --sheet-transition: 280ms cubic-bezier(.2,.8,.2,1);
-
+  --header-height: 56px;
+  
    /* centralized colors */
   --bg-color: rgba(250,249,247,1); /*leave in rgba because is read by renderer in js*/
+  --header-bg-color: rgba(250,249,247,0.8); /*leave in rgba because is read by renderer in js*/
   --header-text-color: #e34234;
   --elements-color: #e34234;
   --text-color: #1F3A3D;
@@ -42,7 +44,8 @@ body {
 }
 
 header {
-    position: absolute;      
+    position: absolute;    
+    top: 0;  
     left: 0;
     right: 0;
     display: flex;
@@ -52,14 +55,11 @@ header {
     box-sizing: border-box;
     color: var(--header-text-color);
     z-index: 1000;
-}
-
-header {
-    top: 0;
-    height: 56px;           
+    height: var(--header-height);           
     padding-left: calc(16px + env(safe-area-inset-left));
     padding-right: calc(16px + env(safe-area-inset-right));
     padding-top: calc(0px + env(safe-area-inset-top));
+    background: var(--header-bg-color);
 }
 
 header h1 {
@@ -361,6 +361,21 @@ header h1 {
     margin-top: 8px;
     letter-spacing: 0.3px;
 }
+
+.exit-btn {
+    position: fixed; 
+    top: calc(var(--header-height) + 10px); 
+    left: 10px;
+    padding: 0 16px;
+    font-size: 18px;
+    border-radius: var(--sheet-radius);
+    background: var(--header-bg-color);
+    color: var(--header-text-color);
+    border: none;
+    cursor: pointer;
+    z-index: 9999;
+}
+
 
 @keyframes spin {
   to { transform: rotate(360deg); }

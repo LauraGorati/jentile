@@ -1,6 +1,6 @@
 import { mmLog, mmError, getMouseCoordOnCanvas, getUrlParameter} from './utils.js';
 import { showLoading, hideLoading, displayErrorMessage, addToViewerContainer, reloadDescription, updateProgress} from './document.js'
-import { highlightModel, makeSelectable, loadModelPropertiesFromJson } from './models.js';
+import { highlightModel, makeSelectable, loadModelPropertiesFromJson, loadCameraPropertiesFromJson, configureControlsOptions} from './models.js';
 
 function openFullscreenImage(src) 
 { 
@@ -81,7 +81,8 @@ function deselectModel(){
 
 function openLink(link){
 	hideTooltip();
-	
+	exit_btn.style.display = 'none'; 
+
 	let showBottomSheet = true;
 	if (!link.startsWith('http')){
 		showLoading();
@@ -89,7 +90,32 @@ function openLink(link){
 		pushUrl("file", link);
 		
 		if (link.endsWith('.glb')) {
-			loadGLB(link); 
+			if (currentGLB === link) {
+				//reload properties from config form the old model name + _internal in case they were changed by hotspots
+				//search for model name in scene, if found apply properties, otherwise reload whole model
+				for (const child of scene.children) {
+					if (child.name === link) {
+						loadModelPropertiesFromJson(child, config, "INTERNAL_"+link);
+						let isInternal = loadCameraPropertiesFromJson(camera, config, "INTERNAL_"+link);
+						if (isInternal) { 
+							exit_btn.style.display = 'block'; 
+						} 
+						exit_btn.addEventListener('click', () => {
+							const externalName = currentGLB.replace('INTERNAL_', '');
+							exit_btn.style.display = 'none'; 
+							showLoading();
+							loadGLB(externalName);
+						});
+						
+						configureControlsOptions(controls, isInternal, camera.position); // if internal, configure controls accordingly
+						break;
+					}
+				}
+				hideLoading();
+			}
+			else{
+				loadGLB(link); 
+			}
 		}
 		else if (link.endsWith('.jpg')|| link.endsWith('.png') || link.endsWith('.gif') || link.endsWith('.jpeg')) {
 			loadImage(link);
@@ -255,6 +281,7 @@ function loadGLB(file){
 			if (!response.ok) {
 				throw new Error('GLB file not found.');
 			}
+			currentGLB = file; // save current loaded GLB name for future reference
 
 			// Create scene, camera, renderer
 			scene = new THREE.Scene();
@@ -400,7 +427,7 @@ function loadGLB(file){
 					const configKey = glbPath.split('/').pop();
 
 					const model = gltf.scene;
-					loadModelPropertiesFromJson(model, config[configKey])
+					loadModelPropertiesFromJson(model, config, configKey)
 			
 					model.highlightModel = false; //root object not highlightable
 					scene.add(model);
@@ -410,11 +437,11 @@ function loadGLB(file){
 						config[configKey].hotspots.forEach(h => {
 							
 							const loader2 = new THREE.GLTFLoader(); 
-							//loader2.setDRACOLoader(dracoLoader);
+							loader2.setDRACOLoader(dracoLoader);
 							loader2.load(`3Dobjects/${h.reference}`, 
 								function (gltf_temp) {
 									const secondary_model = gltf_temp.scene;
-									loadModelPropertiesFromJson(secondary_model, h)
+									loadModelPropertiesFromJson(secondary_model, config, h.reference)
 
 									makeSelectable(h, secondary_model); 
 									scene.add(secondary_model);
@@ -436,76 +463,51 @@ function loadGLB(file){
 					//load camera position from config.json
 					let isInternal = false;
 					if (config[configKey] && config[configKey].cameraPosition) {
-						const camType = config[configKey].cameraPosition.type;
-						if (camType === "internal") {
-							isInternal = true;
-						}
-						const pos = config[configKey].cameraPosition.position;
-						if (pos) {
-							camera.position.set(pos.x, pos.y, pos.z);
-						}
+						isInternal = loadCameraPropertiesFromJson(camera, config, configKey);
 					}
-					const controls = new THREE.OrbitControls(camera, renderer.domElement);
+					//init controls based on camera position type (internal/external)
+					controls = new THREE.OrbitControls(camera, renderer.domElement);
 					controls.enablePan = !isInternal; // allow/deny panning per config
 					controls.enableZoom = !isInternal;
 					controls.enableDamping = true;
 					controls.dampingFactor = 0.25;
 					controls.screenSpacePanning = true;
+									
+					configureControlsOptions(controls, isInternal, camera.position); // if internal, configure controls accordingly
 
-					
-				// Disable up/down movement for external only: lock polar angle to current camera polar
-				// compute current polar angle relative to controls.target
-				if (isInternal) {
-					controls.minDistance = -5;
-					controls.maxDistance = 5;  
-					controls.minAzimuthAngle = -Infinity; // allow looking left/right freely
-					controls.maxAzimuthAngle = Infinity;
-				}
-				else{
-					controls.minDistance = 8;
-					controls.maxDistance = 20;  
-					// Limit left/right to ±45°, or custom values from config
-					controls.minAzimuthAngle = -Math.PI / 4; // -45°
-					controls.maxAzimuthAngle = Math.PI / 4;  // +45°
-					const offset = new THREE.Vector3().copy(camera.position).sub(controls.target);
-					const spherical = new THREE.Spherical().setFromVector3(offset);
-					controls.minPolarAngle = spherical.phi;
-					controls.maxPolarAngle = spherical.phi;
-				}
+					controls.addEventListener('start', () => {
+						orbitControlsisDragging = true;
+					});
+					controls.addEventListener('end', () => {
+						orbitControlsisDragging = false;
+					});
 
-				controls.addEventListener('start', () => {
-					orbitControlsisDragging = true;
-				});
-				controls.addEventListener('end', () => {
-					orbitControlsisDragging = false;
-				});
+					function animate() {
+						if (scene) {
+							requestAnimationFrame(animate);
+							controls.update();
 
-				function animate() {
-					if (scene) {
-						requestAnimationFrame(animate);
-						controls.update();
-
-						renderer.render(scene, camera);
+							renderer.render(scene, camera);
+						}
 					}
-				}
 
-				animate();
+					animate();
 
-				hideLoading();
+					hideLoading();
 
-			}, 
-			function (progressEvent) {
-				if (progressEvent.lengthComputable) {
-					const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
-					updateProgress(percentComplete);
-				}
-			}, 
-			function (error) {
-				console.error("Error loading GLB:", error);
-			});
-		})
-		.catch(error => {
-			displayErrorMessage("Error: GLB file do not exists", error);
+				}, 
+				function (progressEvent) {
+					if (progressEvent.lengthComputable) {
+						const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
+						updateProgress(percentComplete);
+					}
+				}, 
+				function (error) {
+					console.error("Error loading GLB:", error);
+				});
+			})
+			.catch(error => {
+				displayErrorMessage("Error: GLB file do not exists", error);
 		});
 	
 	reloadDescription(glbPath);
@@ -630,13 +632,14 @@ function mainLogic(){
 let currentHoveredModel = null;
 let orbitControlsisDragging = null;
 let selectedModel = null; // model currrently selected by touch
+let currentGLB = null; // currently loaded GLB file
 let touchStartX = 0;
 let touchStartY = 0;
 let isTouchMoved = false;
-let raycaster, camera, scene;
+let raycaster, camera, scene, controls;
 let renderer = null;
 
-let div_tooltip;
+let div_tooltip, exit_btn;
 let config = null;
 
 //global variables for bottom-sheet
@@ -652,6 +655,7 @@ let currentTranslate = null;
 // Top right dropdown menu
 document.addEventListener('DOMContentLoaded', function() {
 	div_tooltip = document.getElementById('model-tooltip');
+	exit_btn = document.getElementById('exit-internal-btn');
     const menuBtn = document.getElementById('menu-btn');
     const dropdownMenu = document.getElementById('dropdown-menu');
     let menuLoaded = false;
