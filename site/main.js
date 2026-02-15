@@ -266,7 +266,6 @@ function loadGLB(file){
 				: cssBg;
 			scene.background = new THREE.Color(bgForThree);
 
-
 			renderer = new THREE.WebGLRenderer();
 			renderer.setClearColor(bgForThree, 1);
 
@@ -390,8 +389,9 @@ function loadGLB(file){
 				sun.position.set(config["lights"].sun.position.x, config["lights"].sun.position.y, config["lights"].sun.position.z);
 				scene.add(sun);
 			}
-			// load GLB
-			const loader = new THREE.GLTFLoader();
+
+			const loader = new THREE.GLTFLoader()
+			
 			loader.load(glbPath, 
 				function (gltf) { //load model from file
 					const configKey = glbPath.split('/').pop();
@@ -436,7 +436,7 @@ function loadGLB(file){
 						if (camType === "internal") {
 							isPanEnabled = false;
 						}
-						const pos = config[configKey].cameraPosition[camType];
+						const pos = config[configKey].cameraPosition.position;
 						if (pos) {
 							camera.position.set(pos.x, pos.y, pos.z);
 
