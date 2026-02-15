@@ -29,10 +29,9 @@
   "3d_cappella_interno.glb": {
     "cameraPosition": {
       "type": "internal", 
-      "position": { "x": 0, "y": 0, "z": 0 },   
-      "lookAt": { "x": 0, "y": 0, "z": -5 }
+      "position": { "x": 0, "y": 0, "z": 0.1 }
     },  
-    "scale": { "x": 1, "y": 1, "z": 1}, 
+    "scale": { "x": 2, "y": 2, "z": 2}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
     "hotspots": [ 
      
@@ -41,8 +40,7 @@
   "3d_cappellaPandolfo.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 1.6, "z": 20 },   
-      "lookAt": { "x": 0, "y": 0, "z": -5 }
+      "position": { "x": 0, "y": 1.6, "z": 20 } 
     },  
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
@@ -71,8 +69,7 @@
     "name" : "Porte",
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0.47, "z": 0.9 },
-      "lookAt": { "x": 0, "y": 2, "z": -5 }
+      "position": { "x": 0, "y": 0.47, "z": 0.9 }
     },  
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position": { "x": 0, "y": 0, "z": 0 }, 
@@ -83,8 +80,7 @@
   "gentile_lunettaNO.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0, "z": 1 },   
-      "lookAt": { "x": 0, "y": 0, "z": -1 }
+      "position": { "x": 0, "y": 0, "z": 1 }
     }, 
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
@@ -95,8 +91,7 @@
   "gentile_lunettaSO.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0, "z": 1 },   
-      "lookAt": { "x": 0, "y": 0, "z": -1 }
+      "position": { "x": 0, "y": 0, "z": 1 }
     },  
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
@@ -107,8 +102,7 @@
   "gentile_profeta.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0, "z": 1 },   
-      "lookAt": { "x": 0, "y": 0, "z": -1 }
+      "position": { "x": 0, "y": 0, "z": 1 }
     }, 
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
@@ -119,8 +113,7 @@
   "gentile_aureola_cristo.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0, "z": 1 },   
-      "lookAt": { "x": 0, "y": 0, "z": -1 }
+      "position": { "x": 0, "y": 0, "z": 1 }
     }, 
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },

@@ -391,7 +391,10 @@ function loadGLB(file){
 			}
 
 			const loader = new THREE.GLTFLoader()
-			
+			const dracoLoader = new THREE.DRACOLoader();
+			dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+			loader.setDRACOLoader(dracoLoader);
+
 			loader.load(glbPath, 
 				function (gltf) { //load model from file
 					const configKey = glbPath.split('/').pop();
@@ -407,6 +410,7 @@ function loadGLB(file){
 						config[configKey].hotspots.forEach(h => {
 							
 							const loader2 = new THREE.GLTFLoader(); 
+							//loader2.setDRACOLoader(dracoLoader);
 							loader2.load(`3Dobjects/${h.reference}`, 
 								function (gltf_temp) {
 									const secondary_model = gltf_temp.scene;
@@ -430,45 +434,44 @@ function loadGLB(file){
 					}
 				
 					//load camera position from config.json
-					let isPanEnabled = true;
+					let isInternal = false;
 					if (config[configKey] && config[configKey].cameraPosition) {
 						const camType = config[configKey].cameraPosition.type;
 						if (camType === "internal") {
-							isPanEnabled = false;
+							isInternal = true;
 						}
 						const pos = config[configKey].cameraPosition.position;
 						if (pos) {
 							camera.position.set(pos.x, pos.y, pos.z);
-
-							if (config[configKey].lookAt) {
-								const lookAt = new THREE.Vector3(
-									config[configKey].lookAt.x,
-									config[configKey].lookAt.y,
-									config[configKey].lookAt.z
-								);
-								camera.lookAt(lookAt);
-							}
 						}
 					}
 					const controls = new THREE.OrbitControls(camera, renderer.domElement);
-					controls.enablePan = isPanEnabled; // allow/deny panning per config
-					controls.enableZoom = true;
+					controls.enablePan = !isInternal; // allow/deny panning per config
+					controls.enableZoom = !isInternal;
 					controls.enableDamping = true;
 					controls.dampingFactor = 0.25;
 					controls.screenSpacePanning = true;
-					controls.minDistance = 0.3;
-					controls.maxDistance = 20;  
+
 					
+				// Disable up/down movement for external only: lock polar angle to current camera polar
+				// compute current polar angle relative to controls.target
+				if (isInternal) {
+					controls.minDistance = -5;
+					controls.maxDistance = 5;  
+					controls.minAzimuthAngle = -Infinity; // allow looking left/right freely
+					controls.maxAzimuthAngle = Infinity;
+				}
+				else{
+					controls.minDistance = 8;
+					controls.maxDistance = 20;  
 					// Limit left/right to ±45°, or custom values from config
 					controls.minAzimuthAngle = -Math.PI / 4; // -45°
 					controls.maxAzimuthAngle = Math.PI / 4;  // +45°
-				
-				// Disable up/down movement: lock polar angle to current camera polar
-				// compute current polar angle relative to controls.target
-				const offset = new THREE.Vector3().copy(camera.position).sub(controls.target);
-				const spherical = new THREE.Spherical().setFromVector3(offset);
-				controls.minPolarAngle = spherical.phi;
-				controls.maxPolarAngle = spherical.phi;
+					const offset = new THREE.Vector3().copy(camera.position).sub(controls.target);
+					const spherical = new THREE.Spherical().setFromVector3(offset);
+					controls.minPolarAngle = spherical.phi;
+					controls.maxPolarAngle = spherical.phi;
+				}
 
 				controls.addEventListener('start', () => {
 					orbitControlsisDragging = true;
