@@ -4,25 +4,30 @@
     "headerTitle": "lo studiolo malatestiano"
   },
   "lights":{
+    "hemisphere" : {
+      "color": "rgb(240, 245, 250)",
+      "groundColor": "rgb(255, 255, 255)",
+      "intensity": 1.4
+    },
     "ambient" : {
       "color": "rgb(255, 244, 229)",
-      "intensity": 1
+      "intensity": 0
     },
     "sun" : {
       "color": "rgb(255, 255, 255)",
       "position": { "x": 0, "y": 50, "z": 50 },
-      "intensity": 0
+      "intensity": 2.2
     },
     "pointLights": {
         "directional1" : {
-            "color": "rgb(255, 244, 229)",
+            "color": "rgb(255, 255, 255)",
             "position": { "x": -5, "y": 5, "z": 0.2 },
-            "intensity": 0.5
+            "intensity": 0
         },
         "directional2" : {
             "color": "rgb(255, 244, 229)",
             "position": { "x": 5, "y": 5, "z": 0.2 },
-            "intensity": 0.5
+            "intensity": 0
         } 
       }
   },  
@@ -89,7 +94,7 @@
   "gentile_lunettaNO.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0, "z": 1 }
+      "position": { "x": 0, "y": 0, "z": 2 }
     }, 
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
@@ -100,7 +105,7 @@
   "gentile_lunettaSO.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0, "z": 1 }
+      "position": { "x": 0, "y": 0, "z": 2 }
     },  
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
@@ -111,7 +116,7 @@
   "gentile_profeta.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0, "z": 1 }
+      "position": { "x": 0, "y": 0, "z": 2 }
     }, 
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },
@@ -122,7 +127,7 @@
   "gentile_aureola_cristo.glb": {
     "cameraPosition": {
       "type": "external", 
-      "position": { "x": 0, "y": 0, "z": 1 }
+      "position": { "x": 0, "y": 0, "z": 2 }
     }, 
     "scale": { "x": 1, "y": 1, "z": 1}, 
     "position":   { "x": 0, "y": 0, "z": 0 },

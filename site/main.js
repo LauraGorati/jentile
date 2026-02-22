@@ -79,6 +79,21 @@ function deselectModel(){
 	selectedModel = null;
 }
 
+function loadCameraAndControlsProperties(link){
+	let isInternal = loadCameraPropertiesFromJson(camera, config, link);
+	if (isInternal) { 
+		exit_btn.style.display = 'block'; 
+	} 
+	else {
+		exit_btn.style.display = 'none'; 
+	}
+	configureControlsOptions(controls, isInternal, camera.position); // if internal, configure controls accordingly
+}
+
+function toggleInternalExternal(model, link){
+	loadModelPropertiesFromJson(model, config, link);
+	loadCameraAndControlsProperties(link);	
+}
 function openLink(link){
 	hideTooltip();
 	exit_btn.style.display = 'none'; 
@@ -95,19 +110,12 @@ function openLink(link){
 				//search for model name in scene, if found apply properties, otherwise reload whole model
 				for (const child of scene.children) {
 					if (child.name === link) {
-						loadModelPropertiesFromJson(child, config, "INTERNAL_"+link);
-						let isInternal = loadCameraPropertiesFromJson(camera, config, "INTERNAL_"+link);
-						if (isInternal) { 
-							exit_btn.style.display = 'block'; 
-						} 
+						toggleInternalExternal(child, "INTERNAL_"+link);
+						
 						exit_btn.addEventListener('click', () => {
 							const externalName = currentGLB.replace('INTERNAL_', '');
-							exit_btn.style.display = 'none'; 
-							showLoading();
-							loadGLB(externalName);
+							toggleInternalExternal(child, externalName);
 						});
-						
-						configureControlsOptions(controls, isInternal, camera.position); // if internal, configure controls accordingly
 						break;
 					}
 				}
@@ -162,6 +170,10 @@ function disposeGLBResources(){
 	scene = null;
 	camera = null;
 	renderer =null;
+	controls = null;
+	raycaster = null;
+	loader = null;
+	currentGLB = null;
 }
 
 function applyPadding(element){
@@ -273,238 +285,289 @@ function resizeToContainer() {
 	}
 }
 
-function loadGLB(file){
-	const glbPath = `3Dobjects/${file}`;
+function removeModelsButKeepLights() {
+    // copia array per evitare problemi durante l'iterazione
+    scene.children.slice().forEach(child => {
+        if (child.isLight) return; // conserva tutte le luci
+        scene.remove(child);
+    });
+}
+
+function loadCamera(){
+	camera = new THREE.PerspectiveCamera(75, window.innerWidth / (window.innerHeight / 2), 0.1, 1000);
+}
+
+function loadSceneRendererControlsLoader(){
+	// Create scene, renderer
+	scene = new THREE.Scene();
+	// obtain color from CSS and remove alpha if is 'rgba(...)'
+	const cssBg = getComputedStyle(document.documentElement)
+						.getPropertyValue('--bg-color').trim();
+	const bgForThree = cssBg.startsWith('rgba')
+		? cssBg.replace(/rgba\((\s*\d+\s*,\s*\d+\s*,\s*\d+),\s*[\d.]+\)/, 'rgb($1)')
+		: cssBg;
+	scene.background = new THREE.Color(bgForThree);
+
+	renderer = new THREE.WebGLRenderer();
+	renderer.setClearColor(bgForThree, 1);
+
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // qualità/performanza
+	renderer.domElement.style.width = '100%';
+	renderer.domElement.style.height = '100%';
+	renderer.physicallyCorrectLights = true; // for better light rendering
+	renderer.outputEncoding = THREE.sRGBEncoding; // for correct color rendering
+	renderer.shadowMap.enabled = true; // enable shadows
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap; // softer shadows
+	renderer.toneMapping = THREE.ACESFilmicToneMapping; // better dynamic range
+	renderer.toneMappingExposure = 1.2; // default exposure
+
+	raycaster = new THREE.Raycaster();
+
+	// Primo resize
+	resizeToContainer();
+
+	renderer.domElement.addEventListener( 'click', (event) =>
+	{
+		event.preventDefault();
+
+		const mouse = getMouseCoordOnCanvas(event, renderer);
+
+		const hitObject = findHitObject(mouse);
+
+		if (hitObject && hitObject.tooltip && hitObject.tooltip.link) {
+			openLink(hitObject.tooltip.link);
+		}
+	} );
+
+	renderer.domElement.addEventListener('mousemove', (event) => {
+		// ignora hover if user is dragging
+		if (orbitControlsisDragging) {
+			hideTooltip();
+
+			if (currentHoveredModel) {
+				highlightModel(currentHoveredModel, false);
+				currentHoveredModel = null;
+			}
+			return;
+		}
+		
+		let newHoveredModel = showTooltip(event, renderer);
+
+		// if model changed....
+		if (newHoveredModel !== currentHoveredModel) {
+			// de-highlight old one
+			if (currentHoveredModel) {
+				highlightModel(currentHoveredModel, false);
+			}
+			// highlight new one
+			if (newHoveredModel) {
+				highlightModel(newHoveredModel, true);
+			}
+
+			currentHoveredModel = newHoveredModel;
+		}
+	});
+
+	renderer.domElement.addEventListener('touchstart', (touch) => {
+		touch.preventDefault(); //no scroll or zoom
+
+		const event = touch.touches[0];
+		checkIfTouchMoved(event);
+	
+		let hitObject = showTooltip(event, renderer);
+
+		if (hitObject) {
+			if (!isTouchMoved && selectedModel) {
+			
+				if (selectedModel.tooltip && selectedModel.tooltip.link) {
+					openLink(selectedModel.tooltip.link);
+				}
+				deselectModel();
+			}
+
+			// if highlightable...
+			if (hitObject.highlightModel !== false) {
+
+				selectedModel = hitObject;
+
+				highlightModel(selectedModel, true);
+				
+				mmLog('Touch start: selected ', selectedModel.name);
+
+			}
+		} 
+		else {
+			// Touchoutside: deselect and hide everything
+			if (selectedModel) {
+				deselectModel();
+			}
+		}
+	});
+
+	renderer.domElement.addEventListener('touchmove', (touch) => {
+		const event = touch.touches[0];
+		checkIfTouchMoved(event);
+	});
+
+	addToViewerContainer(renderer.domElement);
+	
+	// Hemispehere lightning from config.json
+	if (config["lights"] && config["lights"].hemisphere && config["lights"].hemisphere.intensity > 0) {
+		const hemi = config["lights"].hemisphere;
+		const skyLight = new THREE.HemisphereLight(hemi.color, hemi.groundColor, hemi.intensity);
+		scene.add(skyLight);
+	}
+
+	// Ambient lightning from config.json
+	if (config["lights"] && config["lights"].ambient && config["lights"].ambient.intensity > 0) {
+		const amb = config["lights"].ambient;
+		const ambientLight = new THREE.AmbientLight(amb.color, amb.intensity);
+		scene.add(ambientLight);
+	}
+	
+	//directional lights from config.json
+	if (config["lights"] && config["lights"].pointLights) {
+		for (const key in config["lights"].pointLights) {
+			const pt = config["lights"].pointLights[key];
+			if (pt.intensity > 0) {			
+				const pointLight = new THREE.DirectionalLight(pt.color, pt.intensity);
+				pointLight.position.set(pt.position.x, pt.position.y, pt.position.z);
+				scene.add(pointLight);
+			}
+		}
+	}
+	
+	//sun light
+	if (config["lights"] && config["lights"].sun && config["lights"].sun.intensity > 0) {
+		const sun = new THREE.DirectionalLight(config["lights"].sun.color, config["lights"].sun.intensity);
+		sun.position.set(config["lights"].sun.position.x, config["lights"].sun.position.y, config["lights"].sun.position.z);
+		sun.castShadow = false; // enable shadows from sun
+		scene.add(sun);
+	}
+
+	//init controls based on camera position type (internal/external)
+	controls = new THREE.OrbitControls(camera, renderer.domElement);
+	controls.enableDamping = true;
+	controls.dampingFactor = 0.25;
+	controls.screenSpacePanning = true;
+
+	controls.addEventListener('start', () => {
+		orbitControlsisDragging = true;
+	});
+	controls.addEventListener('end', () => {
+		orbitControlsisDragging = false;
+	});
+
+	loader = new THREE.GLTFLoader()
+	const dracoLoader = new THREE.DRACOLoader();
+	dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+	loader.setDRACOLoader(dracoLoader);
+	
+	animate();
+
+}
+
+// helper per caricare e cache-are i GLTF
+function loadGLTF(url, onProgress) {
+    if (gltfCache.has(url)) return Promise.resolve(gltfCache.get(url));
+    return new Promise((resolve, reject) => {
+        loader.load(url, (gltf) => {
+            gltfCache.set(url, gltf);
+            resolve(gltf); // <-- qui va il resolve
+        }, onProgress, reject);
+    });
+}
+
+function animate() {
+	if (scene) {
+		requestAnimationFrame(animate);
+		controls.update();
+
+		renderer.render(scene, camera);
+	}
+}
+
+function loadGLB(filename){
+	const glbPath = `3Dobjects/${filename}`;
 	// check if file exixsts
 	fetch(glbPath)
 		.then(response => {
 			if (!response.ok) {
 				throw new Error('GLB file not found.');
 			}
-			currentGLB = file; // save current loaded GLB name for future reference
+			const configKey = glbPath.split('/').pop();
 
-			// Create scene, camera, renderer
-			scene = new THREE.Scene();
-			// obtain color from CSS and remove alpha if is 'rgba(...)'
-			const cssBg = getComputedStyle(document.documentElement)
-								.getPropertyValue('--bg-color').trim();
-			const bgForThree = cssBg.startsWith('rgba')
-				? cssBg.replace(/rgba\((\s*\d+\s*,\s*\d+\s*,\s*\d+),\s*[\d.]+\)/, 'rgb($1)')
-				: cssBg;
-			scene.background = new THREE.Color(bgForThree);
+			if (!camera){
+				loadCamera();
+			}
 
-			renderer = new THREE.WebGLRenderer();
-			renderer.setClearColor(bgForThree, 1);
+			if (!renderer){
+				loadSceneRendererControlsLoader();
+			}
 
-			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // qualità/performanza
-			renderer.domElement.style.width = '100%';
-			renderer.domElement.style.height = '100%';
-			
-			camera = new THREE.PerspectiveCamera(75, window.innerWidth / (window.innerHeight / 2), 0.1, 1000);
-			raycaster = new THREE.Raycaster();
+			loadCameraAndControlsProperties(configKey); // load camera properties based on config for this model (internal/external)
 
-			// Primo resize
-			resizeToContainer();
-
-			renderer.domElement.addEventListener( 'click', (event) =>
-			{
-				event.preventDefault();
-
-				const mouse = getMouseCoordOnCanvas(event, renderer);
-
-				const hitObject = findHitObject(mouse);
-
-				if (hitObject && hitObject.tooltip && hitObject.tooltip.link) {
-					openLink(hitObject.tooltip.link);
-				}
-			} );
-
-			renderer.domElement.addEventListener('mousemove', (event) => {
-				// ignora hover if user is dragging
-				if (orbitControlsisDragging) {
-					hideTooltip();
-	
-					if (currentHoveredModel) {
-						highlightModel(currentHoveredModel, false);
-						currentHoveredModel = null;
-					}
-					return;
-				}
+			if (currentGLB !== filename) {
+			    currentGLB = filename;
 				
-				let newHoveredModel = showTooltip(event, renderer);
+				removeModelsButKeepLights(); // remove old model but keep lights and other scene settings
 
-				// if model changed....
-				if (newHoveredModel !== currentHoveredModel) {
-					// de-highlight old one
-					if (currentHoveredModel) {
-						highlightModel(currentHoveredModel, false);
-					}
-					// highlight new one
-					if (newHoveredModel) {
-						highlightModel(newHoveredModel, true);
-					}
-
-					currentHoveredModel = newHoveredModel;
-				}
-			});
-
-			renderer.domElement.addEventListener('touchstart', (touch) => {
-				touch.preventDefault(); //no scroll or zoom
-
-				const event = touch.touches[0];
-				checkIfTouchMoved(event);
-			
-				let hitObject = showTooltip(event, renderer);
-
-				if (hitObject) {
-					if (!isTouchMoved && selectedModel) {
-					
-						if (selectedModel.tooltip && selectedModel.tooltip.link) {
-							openLink(selectedModel.tooltip.link);
-						}
-						deselectModel();
-					}
-
-					// if highlightable...
-					if (hitObject.highlightModel !== false) {
-
-						selectedModel = hitObject;
-
-						highlightModel(selectedModel, true);
+                //  use cacheable loadGLTF helper to load glb and avoid parsing it multiple times if not needed
+                loadGLTF(glbPath, function(progressEvent) {
+                    if (progressEvent.lengthComputable) {
+                        const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
+                        updateProgress(percentComplete);
+                    }
+                })
+                .then(gltf => {
 						
-						mmLog('Touch start: selected ', selectedModel.name);
-
-					}
-				} 
-				else {
-					// Touchoutside: deselect and hide everything
-					if (selectedModel) {
-						deselectModel();
-					}
-				}
-			});
-
-			renderer.domElement.addEventListener('touchmove', (touch) => {
-				const event = touch.touches[0];
-				checkIfTouchMoved(event);
-			});
-
-			addToViewerContainer(renderer.domElement);
-		
-			// Ambient lightning from config.json
-			if (config["lights"] && config["lights"].ambient && config["lights"].ambient.intensity > 0) {
-				const amb = config["lights"].ambient;
-				const ambientLight = new THREE.AmbientLight(amb.color, amb.intensity);
-				scene.add(ambientLight);
-			}
-			
-			//directional lights from config.json
-			if (config["lights"] && config["lights"].pointLights) {
-				for (const key in config["lights"].pointLights) {
-					const pt = config["lights"].pointLights[key];
-					if (pt.intensity > 0) {			
-						const pointLight = new THREE.PointLight(pt.color, pt.intensity);
-						pointLight.position.set(pt.position.x, pt.position.y, pt.position.z);
-						scene.add(pointLight);
-					}
-				}
-			}
-			
-			//sun light
-			if (config["lights"] && config["lights"].sun && config["lights"].sun.intensity > 0) {
-				const sun = new THREE.PointLight(config["lights"].sun.color, config["lights"].sun.intensity);
-				sun.position.set(config["lights"].sun.position.x, config["lights"].sun.position.y, config["lights"].sun.position.z);
-				scene.add(sun);
-			}
-
-			const loader = new THREE.GLTFLoader()
-			const dracoLoader = new THREE.DRACOLoader();
-			dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-			loader.setDRACOLoader(dracoLoader);
-
-			loader.load(glbPath, 
-				function (gltf) { //load model from file
-					const configKey = glbPath.split('/').pop();
-
-					const model = gltf.scene;
-					loadModelPropertiesFromJson(model, config, configKey)
-			
-					model.highlightModel = false; //root object not highlightable
-					scene.add(model);
-						
-					// load hotpots models, if they exists
-					if (config[configKey] && config[configKey].hotspots) {
-						config[configKey].hotspots.forEach(h => {
+						const model = gltf.scene;
+						loadModelPropertiesFromJson(model, config, configKey)
+				
+						model.highlightModel = false; //root object not highlightable
+						scene.add(model);
 							
-							const loader2 = new THREE.GLTFLoader(); 
-							loader2.setDRACOLoader(dracoLoader);
-							loader2.load(`3Dobjects/${h.reference}`, 
-								function (gltf_temp) {
-									const secondary_model = gltf_temp.scene;
-									loadModelPropertiesFromJson(secondary_model, config, h.reference)
+						// load hotpots models, if they exists
+						if (config[configKey] && config[configKey].hotspots) {
+							config[configKey].hotspots.forEach(h => {
+								
+								const loader2 = new THREE.GLTFLoader(); 
+								loader2.setDRACOLoader(loader.dracoLoader);
+								loader2.load(`3Dobjects/${h.reference}`, 
+									function (gltf_temp) {
+										const secondary_model = gltf_temp.scene;
+										loadModelPropertiesFromJson(secondary_model, config, h.reference)
 
-									makeSelectable(h, secondary_model); 
-									scene.add(secondary_model);
-									
-								}, 
-								function (progressEvent) {
-									if (progressEvent.lengthComputable) {
-										const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
-										updateProgress(percentComplete);
+										makeSelectable(h, secondary_model); 
+										scene.add(secondary_model);
+										
+									}, 
+									function (progressEvent) {
+										if (progressEvent.lengthComputable) {
+											const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
+											updateProgress(percentComplete);
+										}
+									},
+									function (error) {
+										console.error("Error loading model", error);
 									}
-								},
-								function (error) {
-									console.error("Error loading model", error);
-								}
-							);
-						});								
-					}
-				
-					//load camera position from config.json
-					let isInternal = false;
-					if (config[configKey] && config[configKey].cameraPosition) {
-						isInternal = loadCameraPropertiesFromJson(camera, config, configKey);
-					}
-					//init controls based on camera position type (internal/external)
-					controls = new THREE.OrbitControls(camera, renderer.domElement);
-					controls.enablePan = !isInternal; // allow/deny panning per config
-					controls.enableZoom = !isInternal;
-					controls.enableDamping = true;
-					controls.dampingFactor = 0.25;
-					controls.screenSpacePanning = true;
-									
-					configureControlsOptions(controls, isInternal, camera.position); // if internal, configure controls accordingly
-
-					controls.addEventListener('start', () => {
-						orbitControlsisDragging = true;
-					});
-					controls.addEventListener('end', () => {
-						orbitControlsisDragging = false;
-					});
-
-					function animate() {
-						if (scene) {
-							requestAnimationFrame(animate);
-							controls.update();
-
-							renderer.render(scene, camera);
+								);
+							});								
 						}
-					}
 
-					animate();
+						hideLoading();
 
-					hideLoading();
-
-				}, 
-				function (progressEvent) {
-					if (progressEvent.lengthComputable) {
-						const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
-						updateProgress(percentComplete);
-					}
-				}, 
-				function (error) {
-					console.error("Error loading GLB:", error);
-				});
+					}, 
+					function (progressEvent) {
+						if (progressEvent.lengthComputable) {
+							const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
+							updateProgress(percentComplete);
+						}
+					}, 
+					function (error) {
+						console.error("Error loading GLB:", error);
+					});
+				}
 			})
 			.catch(error => {
 				displayErrorMessage("Error: GLB file do not exists", error);
@@ -636,7 +699,7 @@ let currentGLB = null; // currently loaded GLB file
 let touchStartX = 0;
 let touchStartY = 0;
 let isTouchMoved = false;
-let raycaster, camera, scene, controls;
+let raycaster, camera, scene, controls, loader;
 let renderer = null;
 
 let div_tooltip, exit_btn;
@@ -651,6 +714,9 @@ const collapsedH = parseInt(getComputedStyle(document.documentElement)
 let startY = 0;
 let startTranslate = 0;
 let currentTranslate = null;
+
+// cache per il glTF parsato (evita parsing ripetuti / riusa il gltf)
+const gltfCache = new Map();
 
 // Top right dropdown menu
 document.addEventListener('DOMContentLoaded', function() {

@@ -70,6 +70,9 @@ export function loadCameraPropertiesFromJson(camera, config, key){
 export function configureControlsOptions(controls, isInternal, position){
     // Disable up/down movement for external only: lock polar angle to current camera polar
     // compute current polar angle relative to controls.target
+    controls.enablePan = !isInternal; // allow/deny panning per config
+	controls.enableZoom = !isInternal;
+    
     if (isInternal) {
         controls.minDistance = -5;
         controls.maxDistance = 5;  
