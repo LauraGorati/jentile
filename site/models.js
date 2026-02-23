@@ -20,32 +20,6 @@ export function makeSelectable(h, obj) {
     });
 }
 
-export function highlightModel(model, highlight = true) {
-    if (!model || !model.highlightModel) return;
-
-    model.traverse((child) => {
-        if (child.isMesh && child.material) {
-            if (highlight) {
-                // Highlight in red
-                child.material.color.set(0xff0000); // rosso puro
-                
-                // add emissive glow if needed
-                if (child.material.emissive) {
-                    child.material.emissive.set(0xff4444);
-                }
-            } else {
-                // restore original color
-                if (child.userData.originalColor) {
-                    child.material.color.copy(child.userData.originalColor);
-                }
-                if (child.userData.originalEmissive) {
-                    child.material.emissive.copy(child.userData.originalEmissive);
-                }
-            }
-        }
-    });
-}
-
 export function loadModelPropertiesFromJson(model, config, key){
     let ref = config[key];
 	model.name = key;
@@ -87,8 +61,8 @@ export function configureControlsOptions(controls, isInternal, position){
         controls.minDistance = 0.3;
         controls.maxDistance = 20;  
         // Limit left/right to ±45°, or custom values from config
-        controls.minAzimuthAngle = -Math.PI / 4; // -45°
-        controls.maxAzimuthAngle = Math.PI / 4;  // +45°
+        controls.minAzimuthAngle = -Math.PI / 2.25; // -80°
+        controls.maxAzimuthAngle = Math.PI / 2.25;  // +80°
         const offset = new THREE.Vector3().copy(position).sub(controls.target);
         const spherical = new THREE.Spherical().setFromVector3(offset);
         controls.minPolarAngle = spherical.phi;

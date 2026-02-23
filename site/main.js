@@ -1,6 +1,6 @@
 import { mmLog, mmError, getMouseCoordOnCanvas, getUrlParameter} from './utils.js';
 import { showLoading, hideLoading, displayErrorMessage, addToViewerContainer, reloadDescription, updateProgress} from './document.js'
-import { highlightModel, makeSelectable, loadModelPropertiesFromJson, loadCameraPropertiesFromJson, configureControlsOptions} from './models.js';
+import { makeSelectable, loadModelPropertiesFromJson, loadCameraPropertiesFromJson, configureControlsOptions} from './models.js';
 
 function openFullscreenImage(src) 
 { 
@@ -74,7 +74,6 @@ function hideTooltip(){
 
 function deselectModel(){
 	mmLog("Object deselected");
-	highlightModel(selectedModel, false);
 	hideTooltip();
 	selectedModel = null;
 }
@@ -343,29 +342,10 @@ function loadSceneRendererControlsLoader(){
 		// ignora hover if user is dragging
 		if (orbitControlsisDragging) {
 			hideTooltip();
-
-			if (currentHoveredModel) {
-				highlightModel(currentHoveredModel, false);
-				currentHoveredModel = null;
-			}
 			return;
 		}
 		
-		let newHoveredModel = showTooltip(event, renderer);
-
-		// if model changed....
-		if (newHoveredModel !== currentHoveredModel) {
-			// de-highlight old one
-			if (currentHoveredModel) {
-				highlightModel(currentHoveredModel, false);
-			}
-			// highlight new one
-			if (newHoveredModel) {
-				highlightModel(newHoveredModel, true);
-			}
-
-			currentHoveredModel = newHoveredModel;
-		}
+		showTooltip(event, renderer);
 	});
 
 	renderer.domElement.addEventListener('touchstart', (touch) => {
@@ -388,10 +368,7 @@ function loadSceneRendererControlsLoader(){
 			// if highlightable...
 			if (hitObject.highlightModel !== false) {
 
-				selectedModel = hitObject;
-
-				highlightModel(selectedModel, true);
-				
+				selectedModel = hitObject;			
 				mmLog('Touch start: selected ', selectedModel.name);
 
 			}
@@ -484,6 +461,18 @@ function animate() {
 		controls.update();
 
 		renderer.render(scene, camera);
+
+		// every second make objects  highlited by hotspots glow
+		const time = Date.now() * 0.002;
+		scene.traverse((child) => {
+			if (child.isMesh && child.userData.originalEmissive) {
+				const glow = 0.5 + 0.5 * Math.sin(time);
+				//I want to glow the color from the original to red
+				const red = new THREE.Color(0xff4444);
+				const mixedColor = child.userData.originalEmissive.clone().lerp(red, glow);
+				child.material.emissive.copy(mixedColor);
+			}
+		});
 	}
 }
 
