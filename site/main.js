@@ -43,7 +43,6 @@ function findHitObject(mouse){
 	return null;
 }
 
-
 function showTooltip(event) {
 
 	const mouse = getMouseCoordOnCanvas(event, renderer);
@@ -56,13 +55,11 @@ function showTooltip(event) {
 								</strong>
 								<br>
 								${hitObject.tooltip.text}`;
-
 		div_tooltip.style.display = 'block';
 
 		updateTooltipPosition(hitObject);
 		return hitObject;
 	}
-
 	div_tooltip.style.display = 'none';
 
 	return null;
@@ -80,7 +77,7 @@ function updateTooltipPosition(currentTooltipObject) {
 
 	const margin = 10;
 
-	// Calcolo dimensioni reali
+	// Real dimensions computation
 	div_tooltip.style.visibility = 'hidden';
 	div_tooltip.style.display = 'block';
 
@@ -90,7 +87,7 @@ function updateTooltipPosition(currentTooltipObject) {
 	x += margin;
 	y += margin;
 
-	// Clamp orizzontale
+	// Clamp 
 	if (x + tooltipWidth > window.innerWidth) {
 		x = window.innerWidth - tooltipWidth - margin;
 	}
@@ -98,7 +95,7 @@ function updateTooltipPosition(currentTooltipObject) {
 		x = margin;
 	}
 
-	// Clamp verticale
+	// Clamp 
 	if (y + tooltipHeight > window.innerHeight) {
 		y = window.innerHeight - tooltipHeight - margin;
 	}
@@ -330,9 +327,9 @@ function resizeToContainer() {
 }
 
 function removeModelsButKeepLights() {
-    // copia array per evitare problemi durante l'iterazione
-    scene.children.slice().forEach(child => {
-        if (child.isLight) return; // conserva tutte le luci
+
+	scene.children.slice().forEach(child => {
+        if (child.isLight) return; // mantains all the lights
         scene.remove(child);
     });
 }
@@ -367,7 +364,6 @@ function loadSceneRendererControlsLoader(){
 
 	raycaster = new THREE.Raycaster();
 
-	// Primo resize
 	resizeToContainer();
 
 	renderer.domElement.addEventListener( 'click', (event) =>
@@ -384,7 +380,7 @@ function loadSceneRendererControlsLoader(){
 	} );
 
 	renderer.domElement.addEventListener('mousemove', (event) => {
-		// ignora hover if user is dragging
+
 		if (orbitControlsisDragging) {
 			hideTooltip();
 			return;
@@ -489,13 +485,12 @@ function loadSceneRendererControlsLoader(){
 
 }
 
-// helper per caricare e cache-are i GLTF
 function loadGLTF(url, onProgress) {
     if (gltfCache.has(url)) return Promise.resolve(gltfCache.get(url));
     return new Promise((resolve, reject) => {
         loader.load(url, (gltf) => {
             gltfCache.set(url, gltf);
-            resolve(gltf); // <-- qui va il resolve
+            resolve(gltf);
         }, onProgress, reject);
     });
 }
@@ -748,7 +743,7 @@ let startY = 0;
 let startTranslate = 0;
 let currentTranslate = null;
 
-// cache per il glTF parsato (evita parsing ripetuti / riusa il gltf)
+// cache for gltfs
 const gltfCache = new Map();
 
 // Top right dropdown menu
