@@ -43,30 +43,74 @@ function findHitObject(mouse){
 	return null;
 }
 
-function showTooltip(event, renderer){
+
+function showTooltip(event) {
+
 	const mouse = getMouseCoordOnCanvas(event, renderer);
-
-	let display_style_tooltip = 'none'
-
 	const hitObject = findHitObject(mouse);
 
-	if (hitObject) {	
-		// tooltip management
-		if (hitObject.highlightModel){
-			display_style_tooltip = 'block';
-			div_tooltip.innerHTML = `<strong>
-										${hitObject.tooltip.title}
-									</strong>
-									<br>
-										${hitObject.tooltip.text}`;
-			div_tooltip.style.left = (event.clientX + 10) + 'px';
-			div_tooltip.style.top = (event.clientY + 10) + 'px';
-		}
-		hitObject;
+	if (hitObject && hitObject.highlightModel) {
+
+		div_tooltip.innerHTML = `<strong>
+									${hitObject.tooltip.title}
+								</strong>
+								<br>
+								${hitObject.tooltip.text}`;
+
+		div_tooltip.style.display = 'block';
+
+		updateTooltipPosition(hitObject);
+		return hitObject;
 	}
-	div_tooltip.style.display = display_style_tooltip;
-	return hitObject;
+
+	div_tooltip.style.display = 'none';
+
+	return null;
 }
+
+function updateTooltipPosition(currentTooltipObject) {
+
+	const vector = currentTooltipObject.position.clone();
+	vector.project(camera);
+
+	const canvasRect = renderer.domElement.getBoundingClientRect();
+
+	let x = (vector.x * 0.5 + 0.5) * canvasRect.width + canvasRect.left;
+	let y = (-vector.y * 0.5 + 0.5) * canvasRect.height + canvasRect.top;
+
+	const margin = 10;
+
+	// Calcolo dimensioni reali
+	div_tooltip.style.visibility = 'hidden';
+	div_tooltip.style.display = 'block';
+
+	const tooltipWidth = div_tooltip.offsetWidth;
+	const tooltipHeight = div_tooltip.offsetHeight;
+
+	x += margin;
+	y += margin;
+
+	// Clamp orizzontale
+	if (x + tooltipWidth > window.innerWidth) {
+		x = window.innerWidth - tooltipWidth - margin;
+	}
+	if (x < margin) {
+		x = margin;
+	}
+
+	// Clamp verticale
+	if (y + tooltipHeight > window.innerHeight) {
+		y = window.innerHeight - tooltipHeight - margin;
+	}
+	if (y < margin) {
+		y = margin;
+	}
+
+	div_tooltip.style.left = `${x}px`;
+	div_tooltip.style.top = `${y}px`;
+	div_tooltip.style.visibility = 'visible';
+}
+
 
 function hideTooltip(){
 	div_tooltip.style.display = 'none';
@@ -94,7 +138,8 @@ function toggleInternalExternal(model, link){
 	loadCameraAndControlsProperties(link);	
 }
 function openLink(link){
-	hideTooltip();
+	deselectModel();
+
 	exit_btn.style.display = 'none'; 
 
 	let showBottomSheet = true;
@@ -345,7 +390,7 @@ function loadSceneRendererControlsLoader(){
 			return;
 		}
 		
-		showTooltip(event, renderer);
+		showTooltip(event);
 	});
 
 	renderer.domElement.addEventListener('touchstart', (touch) => {
@@ -354,7 +399,7 @@ function loadSceneRendererControlsLoader(){
 		const event = touch.touches[0];
 		checkIfTouchMoved(event);
 	
-		let hitObject = showTooltip(event, renderer);
+		let hitObject = showTooltip(event);
 
 		if (hitObject) {
 			if (!isTouchMoved && selectedModel) {
@@ -362,15 +407,15 @@ function loadSceneRendererControlsLoader(){
 				if (selectedModel.tooltip && selectedModel.tooltip.link) {
 					openLink(selectedModel.tooltip.link);
 				}
-				deselectModel();
+				else {
+					deselectModel();
+				}
 			}
 
 			// if highlightable...
 			if (hitObject.highlightModel !== false) {
-
 				selectedModel = hitObject;			
 				mmLog('Touch start: selected ', selectedModel.name);
-
 			}
 		} 
 		else {
@@ -681,7 +726,6 @@ function mainLogic(){
 // Main
 // Global variables
 
-let currentHoveredModel = null;
 let orbitControlsisDragging = null;
 let selectedModel = null; // model currrently selected by touch
 let currentGLB = null; // currently loaded GLB file
